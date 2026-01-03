@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss";
+
+/* body {
+  background-color: #1e1f20;
+} */
+
+*{
+  font-family: "Roboto", sans-serif;
+  font-family: "Roboto Mono", monospace;
+}
+
+:root{
+  --color-primary:    #185a9d;
+  --color-primarydull:    #102f4e;
+  --color-red:       #a42734;
+  --color-red2:       #c52333;
+  --color-yellow:    #f8fc92;
+  --color-yellow2:    #f7fc70;
+  --color-neutral:       #cdc7cc;
+  --color-login:       #bc2236;
+  --color-neutral2:       #e2d9da;
+  --color-neutral3:       #adaaaa;
+  --color-gray:          #4c515f;
+  --color-textDark:        #232323;
+  --color-teal:         #43cea2;
+  --color-borderColor:#c4c7d2;
+}
