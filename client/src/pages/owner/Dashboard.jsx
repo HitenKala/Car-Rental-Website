@@ -4,6 +4,8 @@ import Title from '../../components/owner/Title'
 
 const Dashboard = () => {
 
+  const currency = import.meta.env.VITE_CURRENCY
+
   const [data,setData] = useState({
     totalCars:0,
     totalBookings:0,
@@ -29,7 +31,7 @@ const Dashboard = () => {
     <div className='px-4 pt-10 md:px-10 flex-1'>
       <Title title="Admin Dashboard" subTitle="Monitor overall platform performance including revenue and bookings"/>
       
-      <div className='grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-8 max-w-3xl'>
+      <div className='grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-8 max-w-4xl'>
         {dashboardCards.map((card,index)=>( 
           <div key ={index} className='flex gap-2 items-center justify-between p-4 rounded-md border border-gray-200'>
             <div>
@@ -58,14 +60,23 @@ const Dashboard = () => {
               </div>
               <div>
                 <p>{booking.car.brand} {booking.car.model}</p>
-                <p>{booking.createdAt.split('T')[0]}</p>
+                <p className='text-sm text-gray-500'>{booking.createdAt.split('T')[0]}</p>
               </div>
+            </div>
+            <div className='flex items-center gap-2 font-medium'>
+              <p className='text-sm text-gray-500'>{currency}{booking.price}</p>
+              <p className='px-3 py-0.5 border border-gray-200 rounded-full text-sm'>{booking.status}</p>
+
             </div>
             </div>
           ))}
         </div>
         {/* Monthly Revenue */}
-        <div></div>
+        <div className='p-4 md:p-6 mb-6 border border-gray-200 rounded-md w-full md:max-w-xs'>
+          <h1 className='text-lg font-medium'>Monthly Revenue</h1>
+          <p className='text-gray-500'>Total revenue for this month</p>
+          <p className='text-3xl font-semibold text-blue-600 mt-6'>{currency}{data.monthlyRevenue}</p>
+        </div>
 
       </div>
 
