@@ -116,7 +116,7 @@ const AddCar = () => {
           <label>Description</label>
           <textarea placeholder='Describe your car...' required value={car.description} onChange={(e)=>setCar({...car, description:e.target.value})} className='border border-gray-300 rounded-md outline-none px-3 py-2 mt-1' rows="4" />
         </div>
-        <button type='submit' className='flex items-center gap-2 px-4 py-2.5 mt-4 mb-4 bg-blue-600 text-white rounded-md w-max font-medium cursor-pointer hover:bg-blue-700 transition-all duration-300'>
+        <button className='flex items-center gap-2 px-4 py-2.5 mt-4 mb-4 bg-blue-600 text-white rounded-md w-max font-medium cursor-pointer hover:bg-blue-700 transition-all duration-300'>
           <img src={assets.tick_icon} alt="" />List Your Car
         </button>
       </form>
