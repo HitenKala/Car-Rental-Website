@@ -8,7 +8,7 @@ export const protect = async (req, res, next) => {
         return res.json({success:false, message:"not authorized"});
     }
     try {
-        const userID = jwt.verify(token, process.env.JWT_SECRET);
+        const userID = jwt.decode(token, process.env.JWT_SECRET);
 
         if(!userID){
             return res.json({success:false, message:"not authorized"});
