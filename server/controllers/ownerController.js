@@ -50,13 +50,18 @@ export const addCar = async (req,res)=>{
             fileName: imageFile.originalname
         });
 
+        // Remove temporary file written by multer to free disk space
+        fs.unlink(imageFile.path, (err) => {
+            if (err) console.error('Failed to remove temp file:', err);
+        });
+
         const uploadedPath = uploadRes.filePath || uploadRes.name || uploadRes.url;
 
         const optimizedImageUrl = client.helper.buildSrc({
             src: uploadedPath,
             urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
             transformation: [
-                { width: 1280, height: 300, crop: 'maintain_ratio', quality: 'auto', format: 'webp' }
+                { width: 1280,  quality: 'auto', format: 'webp' }
             ]
         });
 
@@ -69,5 +74,76 @@ export const addCar = async (req,res)=>{
     } catch (error) {
         console.log(error);
         res.status(500).json({success:false, message:error.message || 'Server error'})
+    }
+}
+
+//API to list owner cars
+export const getOwnerCars = async(req, res)=>{
+    try {
+        const {_id} = req.user;
+        const cars = await Car.find({owner: _id})
+        res.json({success:true, cars})
+    } catch (error) {
+        console.log(error.message);
+        res.json({success:false, message:error.message})
+    }
+}
+
+//API to Toggle Car Availablity
+export const toggleCarAvailability = async(req, res)=>{
+    try {
+        const {_id} = req.user;
+        const {carId} = req.body
+        const car = await Car.findById(carId)
+
+        //Checking if car belongs to the user
+        if(car.owner.toString() !== _id.toString()){
+            return res.json({success:false, message: "Unauthorized"})
+        }
+        car.isAvailable = !car.isAvailable;
+        await car.save()
+
+        res.json({success:true, message: "Availability Toggled"})
+    } catch (error) {
+        console.log(error.message);
+        res.json({success:false, message:error.message})
+    }
+}
+
+//API to delete the Car
+export const deleteCar = async(req, res)=>{
+    try {
+        const {_id} = req.user;
+        const {carId} = req.body
+        const car = await Car.findById(carId)
+
+        //Checking if car belongs to the user
+        if(car.owner.toString() !== _id.toString()){
+            return res.json({success:false, message: "Unauthorized"})
+        }
+
+        car.owner = null;
+        car.isAvailable = false;
+        await car.save()
+
+        res.json({success:true, message: "Car Removed"})
+    } catch (error) {
+        console.log(error.message);
+        res.json({success:false, message:error.message})
+    }
+}
+
+//API to get dashboard data
+export const getDashboardData = async(req, res)=>{
+    try {
+        const {_id, role} = req.user;
+
+        if(role !== 'owner'){
+            return res.json({success:false, message: "Unauthorized"})
+        }
+        const cars = await Car.find({owner: _id})
+    } catch (error) {
+        console.log(error.message);
+        res.json({success:false, message:error.message})
     }
 }
