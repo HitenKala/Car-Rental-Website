@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./configs/db.js";
 import userRouter from "./routes/userRoutes.js";
 import ownerRouter from "./routes/ownerRoutes.js";
+import bookingRouter from "./routes/bookingRoutes.js";
 
 //Initialize express app
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.json());
 app.get("/",(req,res)=>res.send("Server is running..."));
 app.use("/api/user",userRouter)
 app.use("/api/owner",ownerRouter)
+app.use("/api/bookings",bookingRouter)
 
 // Global error handler to return cleaner upload/multipart errors
 app.use((err, req, res, next) => {
