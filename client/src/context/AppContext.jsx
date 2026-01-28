@@ -71,7 +71,7 @@ export const AppProvider = ({ children }) => {
             axios.defaults.headers.common['Authorization'] = `${token}`;
             fetchUser();
         }
-    }, [])
+    }, [token])
 
 
     const value = {
