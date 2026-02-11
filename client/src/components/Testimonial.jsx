@@ -1,11 +1,13 @@
 import React from 'react'
 import Title from '../components/Title'
+import { motion } from 'motion/react';
+
 const Testimonial = () => {
 
     const testimonials = [
-        {  name: "Emma Rodriguez", address: "Barcelona, Spain", image: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200", rating: 5, review: "Exceptional service and attention to detail. Everything was handled professionally and efficiently from start to finish. Highly recommended!" },
-        {  name: "Liam Johnson", address: "New York, USA", image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200", rating: 4, review: "I’m truly impressed by the quality and consistency. The entire process was smooth, and the results exceeded all expectations. Thank you!" },
-        {  name: "Sophia Lee", address: "Seoul, South Korea", image: "https://images.unsplash.com/photo-1701615004837-40d8573b6652?q=80&w=200", rating: 5, review: "Fantastic experience! From start to finish, the team was professional, responsive, and genuinely cared about delivering great results." }
+        { name: "Emma Rodriguez", address: "Barcelona, Spain", image: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200", rating: 5, review: "Exceptional service and attention to detail. Everything was handled professionally and efficiently from start to finish. Highly recommended!" },
+        { name: "Liam Johnson", address: "New York, USA", image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200", rating: 4, review: "I’m truly impressed by the quality and consistency. The entire process was smooth, and the results exceeded all expectations. Thank you!" },
+        { name: "Sophia Lee", address: "Seoul, South Korea", image: "https://images.unsplash.com/photo-1701615004837-40d8573b6652?q=80&w=200", rating: 5, review: "Fantastic experience! From start to finish, the team was professional, responsive, and genuinely cared about delivering great results." }
     ];
     const Star = ({ filled }) => (
         <svg className="w-4 h-4 text-yellow-400" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" >
@@ -13,15 +15,21 @@ const Testimonial = () => {
         </svg>
     );
 
-  return (
-    <div className="py-28 px-6 md:px-16 lg:px-24 xl:px-44">
+    return (
+        <div className="py-28 px-6 md:px-16 lg:px-24 xl:px-44">
 
-        <Title title="What Our Customers Say" subTitle="Discover why discering traveralers choose StayVenture for their luxury accommodations around the world."/>
+            <Title title="What Our Customers Say" subTitle="Discover why discering traveralers choose StayVenture for their luxury accommodations around the world." />
 
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-18">
                 {testimonials.map((testimonial) => (
-                    <div key={testimonial.id} className="bg-white p-6 rounded-xl shadow-lg hover:-traslate-y-1 tasition-all duration-500 max-w-xs">
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: testimonial.id * 0.2, ease: 'easeInOut' }}
+                        viewport={{ once: true, amount: 0.3 }}
+
+                        key={testimonial.id} className="bg-white p-6 rounded-xl shadow-lg hover:-traslate-y-1 tasition-all duration-500 max-w-xs">
                         <div className="flex items-center gap-3">
                             <img className="w-12 h-12 rounded-full" src={testimonial.image} alt={testimonial.name} />
                             <div>
@@ -35,11 +43,11 @@ const Testimonial = () => {
                             ))}
                         </div>
                         <p className="text-gray-500 max-w-90 mt-4 font-light">"{testimonial.review}"</p>
-                    </div>
+                    </motion.div>
                 ))}
             </div>
         </div>
-  )
+    )
 }
 
 export default Testimonial
