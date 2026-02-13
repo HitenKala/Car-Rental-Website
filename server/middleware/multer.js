@@ -1,6 +1,10 @@
 import multer from "multer";
 import path from "path";
+import os from "os";
 
-const upload = multer({ dest: path.join(process.cwd(), "uploads") });
+// Use the system tmp directory in serverless environments (writable)
+const tmpUploadsDir = path.join(os.tmpdir(), "uploads");
+
+const upload = multer({ dest: tmpUploadsDir });
 
 export default upload;
