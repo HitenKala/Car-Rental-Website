@@ -13,11 +13,19 @@ import ManageBookings from './pages/owner/ManageBookings';
 import Login from './components/Login';
 import { Toaster } from 'react-hot-toast';
 import { useAppContext } from './context/AppContext';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ManageUsers from './pages/admin/ManageUsers';
+import ManageOwners from './pages/admin/ManageOwners';
+import ManageCars from './pages/admin/ManageCars';
+import ManageBookingsAdmin from './pages/admin/ManageBookings';
+import DebugAdmin from './pages/admin/DebugAdmin';
 
 const App = () => {
 
   const { showLogin } = useAppContext();
   const isOwnerPath = useLocation().pathname.startsWith('/owner')
+  const isAdminPath = useLocation().pathname.startsWith('/admin')
 
   return (
     <>
@@ -25,7 +33,7 @@ const App = () => {
 
       {showLogin && <Login />}
 
-      {!isOwnerPath && <Navbar />}
+      {!isOwnerPath && !isAdminPath && <Navbar />}
 
       <Routes>
         <Route path='/' element={<Home />} />
@@ -38,9 +46,17 @@ const App = () => {
           <Route path='manage-cars' element={<ManageCar />} />
           <Route path='manage-bookings' element={<ManageBookings />} />
         </Route>
+        <Route path='/admin-debug' element={<DebugAdmin />} />
+        <Route path='/admin' element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path='users' element={<ManageUsers />} />
+          <Route path='owners' element={<ManageOwners />} />
+          <Route path='cars' element={<ManageCars />} />
+          <Route path='bookings' element={<ManageBookingsAdmin />} />
+        </Route>
       </Routes>
 
-      {!isOwnerPath && <Footer />}
+      {!isOwnerPath && !isAdminPath && <Footer />}
 
     </>
   )

@@ -3,12 +3,12 @@ import { assets, menuLinks } from '../assets/assets'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAppContext } from '../context/AppContext'
 import { toast } from 'react-hot-toast'
-import {motion} from 'motion/react'
+import { motion } from 'motion/react'
 
 const Navbar = () => {
-    
-    const { setShowLogin, user, logout, isOwner, axios, setIsOwner } = 
-    useAppContext()
+
+    const { setShowLogin, user, logout, isOwner, isAdmin, axios, setIsOwner } =
+        useAppContext()
 
     const location = useLocation();
     const [open, setOpen] = useState(false);
@@ -30,17 +30,17 @@ const Navbar = () => {
 
     return (
         <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className={`flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className={`flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 
     py-0 text-textDark border-b border-borderColor relative transition-all 
     ${location.pathname === "/" && "bg-[#cdc7cc] border-b-3 border-[#ff344c]"}`}>
 
             <Link to={"/"}>
                 <motion.img
-                whileHover={{scale: 1.2}}
-                src={assets.turbo_rides2} type='png' alt="logo" className="h-22" />
+                    whileHover={{ scale: 1.2 }}
+                    src={assets.turbo_rides2} type='png' alt="logo" className="h-22" />
             </Link>
 
             <div className={`max-sm:fixed max-sm:h-screen max-sm:w-full max-sm:top-18   
@@ -62,7 +62,11 @@ const Navbar = () => {
 
                 <div className='flex max-sm:flex-col items-start sm:items-center gap-6'>
 
-                    <button onClick={() => isOwner ? navigate('/owner') : changeRole()} className='cursor-pointer'>{isOwner ? "Dashboard" : "List Cars"}</button>
+                    {isAdmin ? (
+                        <button onClick={() => navigate('/admin')} className='cursor-pointer'>Admin Dashboard</button>
+                    ) : (
+                        <button onClick={() => isOwner ? navigate('/owner') : changeRole()} className='cursor-pointer'>{isOwner ? "Dashboard" : "List Cars"}</button>
+                    )}
 
                     <button onClick={() => { user ? logout() : setShowLogin(true) }} className='cursor-pointer px-8 py-2 bg-gray-100 hover:bg-[#232323] transition-all
                      text-[#DA2917] hover:text-[#fff] rounded-lg font-bold '>{user ? "Logout" : "Login"}</button>

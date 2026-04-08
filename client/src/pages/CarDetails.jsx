@@ -10,19 +10,19 @@ const CarDetails = () => {
 
   const { id } = useParams();
 
-  const { cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate } = useAppContext();
+  const { cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate, pickupTime, setPickupTime, returnTime, setReturnTime, currency } = useAppContext();
 
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
-  const currency = import.meta.env.VITE_CURRENCY;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const { data } = await axios.post('/api/bookings/create', {
         car: id,
         pickupDate,
-        returnDate
+        returnDate,
+        pickupTime,
+        returnTime
       });
 
       if (data.success) {
@@ -117,9 +117,7 @@ const CarDetails = () => {
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-
-
-          onSubmit={handleSubmit} className='shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500'>
+          onSubmit={handleSubmit} className='shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500 w-full max-w-xl lg:max-w-none'>
 
           <p className='flex items-center justify-between text-2xl text-gray-800 font-semibold'>{currency}{car.pricePerDay}<span className='text-base text-gray-400 font-normal'> per day
           </span>
@@ -127,17 +125,31 @@ const CarDetails = () => {
 
           <hr className='border-gray-300 my-6' />
 
-          <div className='flex flex-col gap-2'>
-            <label htmlFor="pickup-date">Pickup Date</label>
-            <input value={pickupDate} onChange={(e) => setPickupDate(e.target.value)}
-              type="date" className='border border-gray-300 px-3 py-2 rounded-lg' required id='pickup-date'
-              min={new Date().toISOString().split('T')[0]} />
-          </div>
+          <div className='grid gap-4 sm:grid-cols-2'>
+            <div className='flex flex-col gap-2'>
+              <label htmlFor="pickup-date">Pickup Date</label>
+              <input value={pickupDate} onChange={(e) => setPickupDate(e.target.value)}
+                type="date" className='w-full border border-gray-300 px-3 py-2 rounded-lg' required id='pickup-date'
+                min={new Date().toISOString().split('T')[0]} />
+            </div>
 
-          <div className='flex flex-col gap-2'>
-            <label htmlFor="return-date">Return Date</label>
-            <input value={returnDate} onChange={(e) => setReturnDate(e.target.value)}
-              type="date" className='border border-gray-300 px-3 py-2 rounded-lg' required id='return-date' />
+            <div className='flex flex-col gap-2'>
+              <label htmlFor="pickup-time">Pickup Time</label>
+              <input value={pickupTime} onChange={(e) => setPickupTime(e.target.value)}
+                type="time" className='w-full border border-gray-300 px-3 py-2 rounded-lg' required id='pickup-time' />
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <label htmlFor="return-date">Drop-off Date</label>
+              <input value={returnDate} onChange={(e) => setReturnDate(e.target.value)}
+                type="date" className='w-full border border-gray-300 px-3 py-2 rounded-lg' required id='return-date' />
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <label htmlFor="return-time">Drop-off Time</label>
+              <input value={returnTime} onChange={(e) => setReturnTime(e.target.value)}
+                type="time" className='w-full border border-gray-300 px-3 py-2 rounded-lg' required id='return-time' />
+            </div>
           </div>
 
           <button className='w-full bg-blue-500 font-medium text-white py-3  rounded-lg hover:bg-blue-600 transition duration-300 cursor-pointer'>

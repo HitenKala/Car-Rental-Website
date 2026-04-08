@@ -7,7 +7,13 @@ import Booking from "../models/Booking.js"
 //API to change role of user
 export const changeRoleToOwner = async (req, res) => {
     try {
-        const { _id } = req.user;
+        const { _id, role } = req.user;
+
+        // Prevent admins from changing their role
+        if (role === 'admin') {
+            return res.json({ success: false, message: "Admins cannot change their role" });
+        }
+
         await User.findByIdAndUpdate(_id, { role: "owner" })
         res.json({ success: true, message: "Now you can list your cars" })
     } catch (error) {
@@ -69,6 +75,12 @@ export const addCar = async (req, res) => {
         });
 
         const image = optimizedImageUrl || uploadRes.url || uploadedPath;
+        console.log('Saving car with image:', {
+            uploadedPath,
+            optimizedImageUrl,
+            uploadRes_url: uploadRes.url,
+            finalImage: image
+        });
         await Car.create({ ...car, owner: _id, image })
 
         res.json({ success: true, message: "car added" })
@@ -141,7 +153,7 @@ export const getDashboardData = async (req, res) => {
     try {
         const { _id, role } = req.user;
 
-        if (role !== 'owner') {
+        if (role !== 'owner' && role !== 'admin') {
             return res.json({ success: false, message: "Unauthorized" })
         }
         const cars = await Car.find({ owner: _id })

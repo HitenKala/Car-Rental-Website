@@ -1,6 +1,7 @@
 import User from "../models/User.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import crypto from "crypto"
 import Car from "../models/Car.js";
 
 //Generate JWT Token
@@ -75,5 +76,85 @@ export const getCars = async(req,res)=>{
     } catch (error) {
         console.log(error.message);
         res.json({success:false, message:error.message})
+    }
+}
+
+//Request password reset
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body
+
+        if (!email) {
+            return res.json({ success: false, message: "Email is required" })
+        }
+
+        const user = await User.findOne({ email })
+
+        if (!user) {
+            return res.json({ success: false, message: "User does not exist" })
+        }
+
+        const resetCode = crypto.randomInt(100000, 999999).toString()
+        const hashedResetCode = await bcrypt.hash(resetCode, 10)
+
+        user.resetPasswordCode = hashedResetCode
+        user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000)
+        await user.save()
+
+        const response = {
+            success: true,
+            message: "Password reset code generated. It expires in 15 minutes.",
+        }
+
+        if (process.env.NODE_ENV !== "production") {
+            response.resetCode = resetCode
+        }
+
+        console.log(`Password reset code for ${email}: ${resetCode}`)
+
+        res.json(response)
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message })
+    }
+}
+
+//Reset password with code
+export const resetPassword = async (req, res) => {
+    try {
+        const { email, code, password } = req.body
+
+        if (!email || !code || !password || password.length < 8) {
+            return res.json({ success: false, message: "Provide a valid email, reset code, and password" })
+        }
+
+        const user = await User.findOne({ email })
+
+        if (!user || !user.resetPasswordCode || !user.resetPasswordExpires) {
+            return res.json({ success: false, message: "No password reset request found" })
+        }
+
+        if (user.resetPasswordExpires.getTime() < Date.now()) {
+            user.resetPasswordCode = ''
+            user.resetPasswordExpires = null
+            await user.save()
+            return res.json({ success: false, message: "Reset code expired. Please request a new one." })
+        }
+
+        const isCodeValid = await bcrypt.compare(code, user.resetPasswordCode)
+
+        if (!isCodeValid) {
+            return res.json({ success: false, message: "Invalid reset code" })
+        }
+
+        user.password = await bcrypt.hash(password, 10)
+        user.resetPasswordCode = ''
+        user.resetPasswordExpires = null
+        await user.save()
+
+        res.json({ success: true, message: "Password updated successfully" })
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message })
     }
 }

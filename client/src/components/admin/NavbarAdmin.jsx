@@ -3,15 +3,17 @@ import { assets } from '../../assets/assets'
 import { Link, useLocation } from 'react-router-dom'
 import { useAppContext } from '../../context/AppContext'
 
-const NavbarOwner = () => {
-    const { user, isAdmin } = useAppContext()
-    const location = useLocation()
+const NavbarAdmin = () => {
+
+    const { user } = useAppContext();
+    const location = useLocation();
 
     const pageNames = {
-        '/owner': 'Dashboard',
-        '/owner/add-car': 'Add Car',
-        '/owner/manage-cars': 'Manage Cars',
-        '/owner/manage-bookings': 'Manage Bookings',
+        '/admin': 'Dashboard',
+        '/admin/users': 'Users',
+        '/admin/owners': 'Owners',
+        '/admin/cars': 'Cars',
+        '/admin/bookings': 'Bookings',
     }
 
     return (
@@ -24,33 +26,33 @@ const NavbarOwner = () => {
                     <div>
                         <p className='text-lg font-semibold tracking-tight text-slate-900'>Turbo Rides</p>
                         <div className='mt-1 inline-flex rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white'>
-                            Owner
+                            Admin
                         </div>
                     </div>
                 </Link>
                 <div className='hidden h-10 w-px bg-slate-200 md:block' />
                 <div className='hidden md:block'>
-                    <p className='text-sm text-slate-500'>Fleet Center</p>
-                    <p className='text-base font-semibold text-slate-900'>{pageNames[location.pathname] || 'Owner Panel'}</p>
+                    <p className='text-sm text-slate-500'>Control Center</p>
+                    <p className='text-base font-semibold text-slate-900'>{pageNames[location.pathname] || 'Admin Panel'}</p>
                 </div>
             </div>
 
             <div className='flex items-center gap-6'>
                 <div className='hidden items-center gap-5 text-sm text-slate-500 md:flex'>
                     <Link to='/' className='transition hover:text-slate-900'>User Home</Link>
-                    {isAdmin && <Link to='/admin' className='transition hover:text-slate-900'>Admin Dashboard</Link>}
+                    <Link to='/owner' className='transition hover:text-slate-900'>Owner Dashboard</Link>
                 </div>
 
                 <div className='flex items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-2 py-2 pl-4'>
                     <div className='text-right leading-tight'>
-                        <p className='text-xs uppercase tracking-[0.22em] text-slate-400'>Owner</p>
-                        <p className='text-sm font-semibold text-slate-900'>Hi, {user?.name || 'Owner'}</p>
+                        <p className='text-xs uppercase tracking-[0.22em] text-slate-400'>Admin</p>
+                        <p className='text-sm font-semibold text-slate-900'>Hi, {user?.name || 'Admin'}</p>
                     </div>
-                    <img src={user?.image || assets.user_profile} alt="Owner profile" className='h-10 w-10 rounded-full object-cover ring-2 ring-white' />
+                    <img src={user?.image || assets.user_profile} alt="Admin profile" className='h-10 w-10 rounded-full object-cover ring-2 ring-white' />
                 </div>
             </div>
         </div>
     )
 }
 
-export default NavbarOwner
+export default NavbarAdmin

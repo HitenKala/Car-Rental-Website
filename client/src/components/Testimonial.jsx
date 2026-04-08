@@ -5,10 +5,11 @@ import { motion } from 'motion/react';
 const Testimonial = () => {
 
     const testimonials = [
-        { name: "Emma Rodriguez", address: "Barcelona, Spain", image: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200", rating: 5, review: "Exceptional service and attention to detail. Everything was handled professionally and efficiently from start to finish. Highly recommended!" },
-        { name: "Liam Johnson", address: "New York, USA", image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200", rating: 4, review: "I’m truly impressed by the quality and consistency. The entire process was smooth, and the results exceeded all expectations. Thank you!" },
-        { name: "Sophia Lee", address: "Seoul, South Korea", image: "https://images.unsplash.com/photo-1701615004837-40d8573b6652?q=80&w=200", rating: 5, review: "Fantastic experience! From start to finish, the team was professional, responsive, and genuinely cared about delivering great results." }
+        { id: 1, name: "Aarav Mehta", address: "Dehradun, Uttarakhand", image: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200", rating: 5, review: "Exceptional service and attention to detail. Everything was handled professionally and efficiently from start to finish. Highly recommended!" },
+        { id: 2, name: "Riya Sharma", address: "Rishikesh, Uttarakhand", image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200", rating: 4, review: "I am truly impressed by the quality and consistency. The entire process was smooth, and the results exceeded all expectations. Thank you!" },
+        { id: 3, name: "Kabir Rawat", address: "Nainital, Uttarakhand", image: "https://images.unsplash.com/photo-1701615004837-40d8573b6652?q=80&w=200", rating: 5, review: "Fantastic experience! From start to finish, the team was professional, responsive, and genuinely cared about delivering great results." }
     ];
+
     const Star = ({ filled }) => (
         <svg className="w-4 h-4 text-yellow-400" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" >
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 17.25l-6.16 3.73 1.64-7.03L2.5 9.77l7.19-.61L12 2.5l2.31 6.66 7.19.61-5 4.18 1.64 7.03z" />
@@ -18,8 +19,7 @@ const Testimonial = () => {
     return (
         <div className="py-28 px-6 md:px-16 lg:px-24 xl:px-44">
 
-            <Title title="What Our Customers Say" subTitle="Discover why discering traveralers choose StayVenture for their luxury accommodations around the world." />
-
+            <Title title="What Our Customers Say" subTitle="Discover why discerning travelers choose Turbo Rides for comfortable car rentals across Uttarakhand." />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-18">
                 {testimonials.map((testimonial) => (
@@ -28,12 +28,13 @@ const Testimonial = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: testimonial.id * 0.2, ease: 'easeInOut' }}
                         viewport={{ once: true, amount: 0.3 }}
-
-                        key={testimonial.id} className="bg-white p-6 rounded-xl shadow-lg hover:-traslate-y-1 tasition-all duration-500 max-w-xs">
+                        key={testimonial.id}
+                        className="bg-white p-6 rounded-xl shadow-lg hover:-translate-y-1 transition-all duration-500 max-w-xs"
+                    >
                         <div className="flex items-center gap-3">
                             <img className="w-12 h-12 rounded-full" src={testimonial.image} alt={testimonial.name} />
                             <div>
-                                <p className="font-playfair text-xl">{testimonial.name}</p>
+                                <p className="text-xl font-medium">{testimonial.name}</p>
                                 <p className="text-gray-500">{testimonial.address}</p>
                             </div>
                         </div>

@@ -58,7 +58,7 @@ const ManageBookings = () => {
                   <p className='font-medium max-md:hidden'>{booking.car.brand} {booking.car.model}</p>
                 </td>
                 <td className='p-3 max-md:hidden'>
-                  {booking.pickupDate.split('T')[0]} to {booking.returnDate.split('T')[0]}
+                  {booking.pickupDate.split('T')[0]} {booking.pickupTime || '10:00'} to {booking.returnDate.split('T')[0]} {booking.returnTime || '10:00'}
                 </td>
                 <td className='p-3'>{currency}{booking.price}</td>
                 <td className='p-3 max-md:hidden'>
