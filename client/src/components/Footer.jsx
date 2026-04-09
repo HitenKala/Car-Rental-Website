@@ -26,7 +26,7 @@ const Footer = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className='text-gray-500 px-6 md:px-16 lg:px-24 xl:px-32 mt-60 text-sm'
+            className='text-gray-500 px-6 md:px-16 lg:px-24 xl:px-32 mt-20 md:mt-40 text-sm'
         >
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -76,7 +76,7 @@ const Footer = () => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.4 }}
-                    className='flex flex-wrap justify-between w-1/2 gap-8'
+                    className='flex w-full flex-wrap justify-between gap-8 md:w-1/2'
                 >
                     <div>
                         <h2 className='text-base font-medium text-gray-800 uppercase'>QUICK LINKS</h2>
@@ -124,8 +124,8 @@ const Footer = () => {
                 transition={{ duration: 0.5, delay: 0.6 }}
                 className='flex flex-col md:flex-row gap-2 items-center justify-between py-5'
             >
-                <p>� {new Date().getFullYear()} <Link to='/'>TurboRides</Link>. All rights reserved.</p>
-                <ul className='flex items-center gap-4'>
+                <p>&copy; {new Date().getFullYear()} <Link to='/'>TurboRides</Link>. All rights reserved.</p>
+                <ul className='flex flex-wrap items-center justify-center gap-4'>
                     <li><Link to='/info/privacy-policy'>Privacy</Link><span> | </span></li>
                     <li><Link to='/info/terms-of-service'>Terms</Link><span> | </span></li>
                     <li><Link to='/info/cookies'>Cookies</Link></li>
@@ -136,3 +136,4 @@ const Footer = () => {
 }
 
 export default Footer
+

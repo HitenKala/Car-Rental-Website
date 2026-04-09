@@ -18,26 +18,28 @@ const Hero = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
-      className='h-screen flex flex-col items-center justify-center gap-14 bg-neutral2 text-center' >
+      className='min-h-screen flex flex-col items-center justify-center gap-10 bg-neutral2 px-4 py-10 text-center md:gap-14 md:px-6' >
 
-      <motion.h1 initial={{ y: 50, opacity: 0 }}
+      <motion.h1 initial={{ y: 24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className='text-4xl md:text-5xl font-semibold'>Cars On Rent</motion.h1>
+        transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
+        className='max-w-[12ch] text-3xl font-semibold leading-tight sm:text-4xl md:text-5xl'>
+        Cars On Rent
+      </motion.h1>
 
       <motion.form
         initial={{ scale: 0.95, opacity: 0, y: 50 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
         onSubmit={handleSearch}
-        className='w-full max-w-6xl rounded-[30px] bg-white p-6 shadow-[0px_8px_20px_rgba(0,0,0,0.1)] md:p-7'
+        className='w-full max-w-6xl rounded-[30px] bg-white p-4 shadow-[0px_8px_20px_rgba(0,0,0,0.1)] sm:p-5 md:p-7'
         action=""
       >
         <div className='grid gap-4 md:grid-cols-2 xl:grid-cols-[1.2fr_1fr_0.9fr_1fr_0.9fr_auto] xl:items-end'>
           <div className='flex min-w-0 flex-col items-start gap-2'>
             <label htmlFor="pickup-location">Pickup Location</label>
             <select value={pickupLocation} onChange={e => setPickupLocation(e.target.value)} id="pickup-location" className='w-full rounded-xl border border-slate-200 px-4 py-3' required>
-              <option value="" disabled selected>Pickup Location</option>
+              <option value="" disabled>Pickup Location</option>
               {cityList.map((city) => <option key={city} value={city}>{city}</option>)}
             </select>
           </div>
@@ -65,7 +67,7 @@ const Hero = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className='flex h-[52px] items-center justify-center gap-1 rounded-xl bg-[#185a9d] px-9 py-3 text-white cursor-pointer xl:self-end'>
+            className='flex h-[52px] w-full items-center justify-center gap-1 rounded-xl bg-[#185a9d] px-9 py-3 text-white cursor-pointer sm:w-auto xl:self-end'>
             <img src={assets.search_icon} alt="search" className='border-white brightness-300' />
             Search
           </motion.button>
@@ -77,7 +79,7 @@ const Hero = () => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.6 }}
 
-      src={assets.main_car4} alt="Car" className='max-h-74 w-220' />
+      src={assets.main_car4} alt="Car" className='w-full max-w-[900px] px-4 sm:px-0 md:max-h-74 md:w-auto' />
 
     </motion.div>
   )

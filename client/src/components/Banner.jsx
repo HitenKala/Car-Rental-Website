@@ -71,11 +71,11 @@ const Banner = () => {
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className='flex flex-col md:flex-row md:items-start items-center justify-center px-8 min-md:pl-14 pt-10 bg-gradient-to-r from-[#0558FE] to-[#A9CFFF] max-w-6xl md:mx-auto rounded-2xl overflow-hidden'
+        className='flex flex-col items-center justify-center gap-6 rounded-2xl bg-gradient-to-r from-[#0558FE] to-[#A9CFFF] px-5 pt-10 text-center sm:px-8 md:mx-auto md:flex-row md:items-start md:justify-between md:pl-14 md:text-left max-w-6xl overflow-hidden'
       >
         <div>
           <h2 className='text-2xl md:text-3xl font-semibold text-white max-w-lg'>Do You Own a Sports Car?</h2>
-          <p>Monetize your Vehicle effortlessly by listing it on TurboRides </p>
+          <p className='mt-2 text-white/90'>Monetize your Vehicle effortlessly by listing it on TurboRides</p>
 
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -98,7 +98,7 @@ const Banner = () => {
           transition={{ delay: 0.6, duration: 0.4 }}
           src={assets.banner_car_image}
           alt='car'
-          className='max-h-45 mt-10'
+          className='mt-4 max-h-45 w-full max-w-[420px] md:mt-10 md:w-auto'
         />
       </motion.div>
 

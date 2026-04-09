@@ -24,6 +24,10 @@ const Navbar = () => {
         setNavbarSearch(params.get('q') || '');
     }, [location.search]);
 
+    useEffect(() => {
+        setOpen(false);
+    }, [location.pathname]);
+
     const openOwnerRegistration = () => {
         if (!user) {
             setShowLogin(true);
@@ -107,7 +111,7 @@ const Navbar = () => {
                     src={assets.turbo_rides2} type='png' alt="logo" className="h-22" />
             </Link>
 
-            <div className={`max-sm:fixed max-sm:h-screen max-sm:w-full max-sm:top-18   
+            <div className={`max-sm:fixed max-sm:left-0 max-sm:h-screen max-sm:w-full max-sm:top-18 max-sm:overflow-y-auto   
              max-sm:border-t border-borderColor right-0 flex flex-col sm:flex-row sm:flex-nowrap
              items-start sm:items-center gap-4 sm:gap-10 max-sm:p-4 transition-all sm:w-full sm:ml-8 lg:ml-14
             duration-300 z-50 ${location.pathname === "/" ? "bg-[#cdc7cc]" : "bg-white "} 
@@ -119,6 +123,28 @@ const Navbar = () => {
                         </Link>
                     ))}
                 </div>
+
+                <form
+                    onSubmit={handleNavbarSearch}
+                    className='group relative flex w-full items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-[0_6px_20px_rgba(15,23,42,0.08)] transition-all duration-300 focus-within:border-blue-300 focus-within:shadow-[0_10px_28px_rgba(37,99,235,0.18)] lg:hidden'
+                >
+                    <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500'>
+                        <img src={assets.search_icon} alt='search' className='h-4 w-4 opacity-70' />
+                    </div>
+                    <input
+                        type='text'
+                        value={navbarSearch}
+                        onChange={(e) => setNavbarSearch(e.target.value)}
+                        className='w-full bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400'
+                        placeholder='Search cars, brands, models'
+                    />
+                    <button
+                        type='submit'
+                        className='rounded-full bg-[#1d4ed8] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-[#1e40af]'
+                    >
+                        Search
+                    </button>
+                </form>
 
                 <form
                     onSubmit={handleNavbarSearch}
