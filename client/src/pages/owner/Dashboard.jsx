@@ -10,6 +10,10 @@ const defaultData = {
   completedBookings: 0,
   recentBookings: [],
   monthlyRevenue: 0,
+  totalFeedbacks: 0,
+  complaintsCount: 0,
+  averageRating: 0,
+  recentFeedbacks: [],
 }
 
 const Dashboard = () => {
@@ -48,6 +52,20 @@ const Dashboard = () => {
         helper: `${data.completedBookings} confirmed trips`,
         icon: assets.tick_icon,
         accent: 'from-amber-500/12 to-orange-500/12',
+      },
+      {
+        title: 'Owner Rating',
+        value: data.averageRating ? `${data.averageRating}/5` : 'N/A',
+        helper: `${data.totalFeedbacks} feedback entries`,
+        icon: assets.star_icon,
+        accent: 'from-fuchsia-500/12 to-rose-500/12',
+      },
+      {
+        title: 'Complaints',
+        value: data.complaintsCount,
+        helper: 'Items needing follow-up',
+        icon: assets.cautionIconColored,
+        accent: 'from-rose-500/12 to-red-500/12',
       },
     ]
   }, [currency, data])
@@ -101,7 +119,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className='mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4'>
+        <div className='mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3'>
           {stats.map((stat) => (
             <div key={stat.title} className='rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm'>
               <div className='flex items-start justify-between gap-4'>
@@ -172,6 +190,39 @@ const Dashboard = () => {
           </div>
 
           <div className='space-y-6'>
+            <div className='rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
+              <div className='flex items-center justify-between gap-4'>
+                <div>
+                  <p className='text-sm font-semibold text-slate-900'>Reviews & Complaints</p>
+                  <p className='mt-1 text-sm text-slate-500'>Latest feedback from your renters</p>
+                </div>
+                <div className='rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500'>
+                  Feedback
+                </div>
+              </div>
+
+              <div className='mt-4 space-y-3'>
+                {data.recentFeedbacks?.length === 0 ? (
+                  <div className='rounded-2xl bg-slate-50 p-4 text-sm text-slate-400'>
+                    No feedback submitted yet.
+                  </div>
+                ) : (
+                  data.recentFeedbacks.map((feedback) => (
+                    <div key={feedback._id} className='rounded-2xl border border-slate-200 p-4'>
+                      <div className='flex items-center justify-between gap-3'>
+                        <p className='font-medium text-slate-900'>{feedback.user?.name || 'User'}</p>
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${feedback.type === 'complaint' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                          {feedback.type}
+                        </span>
+                      </div>
+                      {feedback.rating ? <p className='mt-1 text-xs text-slate-500'>Rating: {feedback.rating}/5</p> : null}
+                      <p className='mt-2 text-sm text-slate-600'>{feedback.message}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
             <div className='rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
               <p className='text-sm font-semibold text-slate-900'>Fleet Health</p>
               <p className='mt-1 text-sm text-slate-500'>Quick checks across your rental business</p>

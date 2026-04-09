@@ -16,29 +16,29 @@ const NavbarOwner = () => {
 
     return (
         <div className='sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur md:px-8'>
-            <div className='flex items-center gap-4'>
+            <div className='flex items-center gap-4 min-w-0'>
                 <Link to='/' className='flex items-center gap-3'>
                     <div className='flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/10'>
                         <img src={assets.logo} alt="Turbo Rides logo" className='h-6 w-6' />
                     </div>
-                    <div>
-                        <p className='text-lg font-semibold tracking-tight text-slate-900'>Turbo Rides</p>
+                    <div className='min-w-0'>
+                        <p className='text-lg font-semibold tracking-tight text-slate-900 whitespace-nowrap'>Turbo Rides</p>
                         <div className='mt-1 inline-flex rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white'>
                             Owner
                         </div>
                     </div>
                 </Link>
                 <div className='hidden h-10 w-px bg-slate-200 md:block' />
-                <div className='hidden md:block'>
+                <div className='hidden md:block min-w-0'>
                     <p className='text-sm text-slate-500'>Fleet Center</p>
-                    <p className='text-base font-semibold text-slate-900'>{pageNames[location.pathname] || 'Owner Panel'}</p>
+                    <p className='text-base font-semibold text-slate-900 whitespace-nowrap'>{pageNames[location.pathname] || 'Owner Panel'}</p>
                 </div>
             </div>
 
-            <div className='flex items-center gap-6'>
+            <div className='flex items-center gap-6 shrink-0'>
                 <div className='hidden items-center gap-5 text-sm text-slate-500 md:flex'>
-                    <Link to='/' className='transition hover:text-slate-900'>User Home</Link>
-                    {isAdmin && <Link to='/admin' className='transition hover:text-slate-900'>Admin Dashboard</Link>}
+                    <Link to='/' className='transition hover:text-slate-900 whitespace-nowrap'>User Home</Link>
+                    {isAdmin && <Link to='/admin' className='transition hover:text-slate-900 whitespace-nowrap'>Admin Dashboard</Link>}
                 </div>
 
                 <div className='flex items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-2 py-2 pl-4'>

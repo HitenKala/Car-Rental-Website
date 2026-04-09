@@ -121,6 +121,7 @@ export const adminMenuLinks = [
     { name: "Manage Owners", path: "/admin/owners", icon: users_icon, coloredIcon: users_icon },
     { name: "Manage Cars", path: "/admin/cars", icon: carIcon, coloredIcon: carIconColored },
     { name: "Manage Bookings", path: "/admin/bookings", icon: listIcon, coloredIcon: listIconColored },
+    { name: "Newsletter", path: "/admin/newsletter", icon: gmail_logo, coloredIcon: gmail_logo },
 ]
 
 export const dummyUserData = {

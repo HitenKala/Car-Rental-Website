@@ -97,6 +97,7 @@ const ManageBookings = () => {
                                 <th className='p-3 font-medium'>User</th>
                                 <th className='p-3 font-medium'>Owner</th>
                                 <th className='p-3 font-medium max-md:hidden'>Date Range</th>
+                                <th className='p-3 font-medium max-md:hidden'>Renter Details</th>
                                 <th className='p-3 font-medium'>Total</th>
                                 <th className='p-3 font-medium'>Status</th>
                                 <th className='p-3 font-medium'>Actions</th>
@@ -129,6 +130,22 @@ const ManageBookings = () => {
                                     <td className='p-3 max-md:hidden'>
                                         {booking.pickupDate?.split('T')[0] || 'N/A'} {booking.pickupTime || '10:00'} to {booking.returnDate?.split('T')[0] || 'N/A'} {booking.returnTime || '10:00'}
                                     </td>
+                                    <td className='p-3 max-md:hidden'>
+                                        <p className='font-medium text-gray-800'>{booking.renterDetails?.name || booking.user?.name || 'N/A'}</p>
+                                        <p className='text-xs text-gray-500'>{booking.renterDetails?.email || booking.user?.email || 'N/A'}</p>
+                                        <p className='text-xs text-gray-500'>{booking.renterDetails?.mobileNumber || 'N/A'}</p>
+                                        <p className='text-xs text-gray-500 mt-1'>DL: {booking.renterDetails?.drivingLicenseNumber || 'N/A'}</p>
+                                        {booking.renterDocuments?.drivingLicenseDocument ? (
+                                            <a
+                                                href={booking.renterDocuments.drivingLicenseDocument}
+                                                target='_blank'
+                                                rel='noreferrer'
+                                                className='text-xs text-blue-600 underline'
+                                            >
+                                                View License
+                                            </a>
+                                        ) : null}
+                                    </td>
                                     <td className='p-3'>{currency}{booking.price}</td>
                                     <td className='p-3'>
                                         <span className={`px-3 py-1 rounded-md text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-green-100 text-green-500' : booking.status === 'pending' ? 'bg-yellow-100 text-yellow-500' : 'bg-red-100 text-red-500'}`}>{booking.status}</span>
@@ -137,7 +154,7 @@ const ManageBookings = () => {
                                         {booking.status === 'pending' ? (
                                             <select onChange={e => changeBookingStatus(booking._id, e.target.value)} value={booking.status} className='border border-gray-300 rounded-md px-2 py-1.5 mt-1 text-gray-500 text-sm outline-none'>
                                                 <option value="pending">Pending</option>
-                                                <option value="cancelled">Cancelled</option>
+                                                <option value="canceled">Canceled</option>
                                                 <option value="confirmed">Confirmed</option>
                                             </select>
                                         ) : (

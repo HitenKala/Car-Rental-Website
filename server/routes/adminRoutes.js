@@ -2,9 +2,14 @@ import express from "express";
 import { protect } from "../middleware/auth.js";
 import {
     getAllUsers,
+    getUserDetails,
     getAllOwners,
     getAllCars,
     getAllBookings,
+    getNewsletterSubscribers,
+    getOwnerRequests,
+    reviewOwnerRequest,
+    getOwnerDetails,
     deleteUser,
     deleteOwner,
     deleteCar,
@@ -28,9 +33,14 @@ adminRouter.use(adminOnly);
 
 adminRouter.get("/dashboard", getAdminDashboardData);
 adminRouter.get("/users", getAllUsers);
+adminRouter.get("/users/:id", getUserDetails);
 adminRouter.get("/owners", getAllOwners);
+adminRouter.get("/owners/:id", getOwnerDetails);
+adminRouter.get("/owner-requests", getOwnerRequests);
 adminRouter.get("/cars", getAllCars);
 adminRouter.get("/bookings", getAllBookings);
+adminRouter.get("/newsletter", getNewsletterSubscribers);
+adminRouter.post("/owners/:id/review", reviewOwnerRequest);
 
 adminRouter.delete("/users/:id", deleteUser);
 adminRouter.delete("/owners/:id", deleteOwner);

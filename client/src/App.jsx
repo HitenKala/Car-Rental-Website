@@ -16,10 +16,14 @@ import { useAppContext } from './context/AppContext';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageUsers from './pages/admin/ManageUsers';
+import UserDetails from './pages/admin/UserDetails';
 import ManageOwners from './pages/admin/ManageOwners';
+import OwnerDetails from './pages/admin/OwnerDetails';
 import ManageCars from './pages/admin/ManageCars';
 import ManageBookingsAdmin from './pages/admin/ManageBookings';
+import NewsletterSubscribers from './pages/admin/NewsletterSubscribers';
 import DebugAdmin from './pages/admin/DebugAdmin';
+import InfoPage from './pages/InfoPage';
 
 const App = () => {
 
@@ -40,6 +44,7 @@ const App = () => {
         <Route path='/car-details/:id' element={<CarDetails />} />
         <Route path='/cars' element={<Cars />} />
         <Route path='/my-bookings' element={<MyBookings />} />
+        <Route path='/info/:slug' element={<InfoPage />} />
         <Route path='/owner' element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path='add-car' element={<AddCar />} />
@@ -50,9 +55,12 @@ const App = () => {
         <Route path='/admin' element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path='users' element={<ManageUsers />} />
+          <Route path='users/:id' element={<UserDetails />} />
           <Route path='owners' element={<ManageOwners />} />
+          <Route path='owners/:id' element={<OwnerDetails />} />
           <Route path='cars' element={<ManageCars />} />
           <Route path='bookings' element={<ManageBookingsAdmin />} />
+          <Route path='newsletter' element={<NewsletterSubscribers />} />
         </Route>
       </Routes>
 

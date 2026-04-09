@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
 import Car from "../models/Car.js";
+import NewsletterSubscriber from "../models/NewsletterSubscriber.js";
 
 //Generate JWT Token
 const generateToken = (userID)=>{
@@ -156,5 +157,32 @@ export const resetPassword = async (req, res) => {
     } catch (error) {
         console.log(error.message);
         res.json({ success: false, message: error.message })
+    }
+}
+
+//Newsletter subscription
+export const subscribeNewsletter = async (req, res) => {
+    try {
+        const email = (req.body?.email || '').trim().toLowerCase();
+
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Email is required" });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ success: false, message: "Please enter a valid email address" });
+        }
+
+        const existing = await NewsletterSubscriber.findOne({ email });
+        if (existing) {
+            return res.json({ success: true, message: "This email is already subscribed" });
+        }
+
+        await NewsletterSubscriber.create({ email });
+        res.json({ success: true, message: "Subscribed successfully" });
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message });
     }
 }

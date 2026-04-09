@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { data, useNavigate, useParams } from 'react-router-dom'
-import { assets, dummyCarData } from '../assets/assets';
+import { useNavigate, useParams } from 'react-router-dom'
+import { assets } from '../assets/assets';
 import Loader from '../components/Loader';
 import { useAppContext } from '../context/AppContext';
 import toast from 'react-hot-toast';
@@ -10,23 +10,80 @@ const CarDetails = () => {
 
   const { id } = useParams();
 
-  const { cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate, pickupTime, setPickupTime, returnTime, setReturnTime, currency } = useAppContext();
+  const { cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate, pickupTime, setPickupTime, returnTime, setReturnTime, currency, user, setShowLogin } = useAppContext();
 
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
-  const handleSubmit = async (e) => {
+  const [showBookingProfileModal, setShowBookingProfileModal] = useState(false);
+  const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
+  const [bookingProfile, setBookingProfile] = useState({
+    renterName: '',
+    renterEmail: '',
+    renterPhone: '',
+    drivingLicenseNumber: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    notes: '',
+  });
+  const [drivingLicenseDocument, setDrivingLicenseDocument] = useState(null);
+  const [additionalDocument, setAdditionalDocument] = useState(null);
+
+  const openBookingProfileModal = (e) => {
+    e.preventDefault();
+    if (!user) {
+      setShowLogin(true);
+      return;
+    }
+    if (!pickupDate || !returnDate || !pickupTime || !returnTime) {
+      toast.error('Please select pickup and drop-off date/time first');
+      return;
+    }
+    setBookingProfile((prev) => ({
+      ...prev,
+      renterName: prev.renterName || user?.name || '',
+      renterEmail: prev.renterEmail || user?.email || '',
+    }));
+    setShowBookingProfileModal(true);
+  }
+
+  const closeBookingProfileModal = () => {
+    if (isSubmittingBooking) return;
+    setShowBookingProfileModal(false);
+  }
+
+  const handleBookingProfileSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post('/api/bookings/create', {
-        car: id,
-        pickupDate,
-        returnDate,
-        pickupTime,
-        returnTime
-      });
+      if (!drivingLicenseDocument) {
+        toast.error('Driving license document is required');
+        return;
+      }
+
+      setIsSubmittingBooking(true);
+
+      const formData = new FormData();
+      formData.append('car', id);
+      formData.append('pickupDate', pickupDate);
+      formData.append('returnDate', returnDate);
+      formData.append('pickupTime', pickupTime);
+      formData.append('returnTime', returnTime);
+      formData.append('renterName', bookingProfile.renterName.trim());
+      formData.append('renterEmail', bookingProfile.renterEmail.trim());
+      formData.append('renterPhone', bookingProfile.renterPhone.trim());
+      formData.append('drivingLicenseNumber', bookingProfile.drivingLicenseNumber.trim());
+      formData.append('emergencyContactName', bookingProfile.emergencyContactName.trim());
+      formData.append('emergencyContactPhone', bookingProfile.emergencyContactPhone.trim());
+      formData.append('notes', bookingProfile.notes.trim());
+      formData.append('drivingLicenseDocument', drivingLicenseDocument);
+      if (additionalDocument) {
+        formData.append('additionalDocument', additionalDocument);
+      }
+
+      const { data } = await axios.post('/api/bookings/create', formData);
 
       if (data.success) {
         toast.success(data.message);
+        setShowBookingProfileModal(false);
         navigate('/my-bookings');
       } else {
         toast.error(data.message);
@@ -34,6 +91,8 @@ const CarDetails = () => {
 
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setIsSubmittingBooking(false);
     }
   }
 
@@ -93,6 +152,11 @@ const CarDetails = () => {
             <div>
               <h1 className='text-xl font-medium mb-3'>Description</h1>
               <p className='text-gray-500'>{car.description}</p>
+              {car.preciseLocation ? (
+                <p className='mt-2 text-sm text-gray-500'>
+                  <span className='font-medium text-gray-700'>Precise pickup:</span> {car.preciseLocation}
+                </p>
+              ) : null}
             </div>
             {/* Features */}
             <div>
@@ -117,7 +181,7 @@ const CarDetails = () => {
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          onSubmit={handleSubmit} className='shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500 w-full max-w-xl lg:max-w-none'>
+          onSubmit={openBookingProfileModal} className='shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500 w-full max-w-xl lg:max-w-none'>
 
           <p className='flex items-center justify-between text-2xl text-gray-800 font-semibold'>{currency}{car.pricePerDay}<span className='text-base text-gray-400 font-normal'> per day
           </span>
@@ -152,13 +216,139 @@ const CarDetails = () => {
             </div>
           </div>
 
-          <button className='w-full bg-blue-500 font-medium text-white py-3  rounded-lg hover:bg-blue-600 transition duration-300 cursor-pointer'>
+          <button type='submit' className='w-full bg-blue-500 font-medium text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300 cursor-pointer'>
             Book Now
           </button>
           <p className='text-center text-sm'>No credit card required to reserve</p>
 
         </motion.form>
       </div>
+
+      {showBookingProfileModal && (
+        <div
+          className='fixed inset-0 z-[120] flex items-center justify-center bg-black/55 px-4 py-8'
+          onClick={closeBookingProfileModal}
+        >
+          <form
+            onSubmit={handleBookingProfileSubmit}
+            onClick={(event) => event.stopPropagation()}
+            className='w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl'
+          >
+            <p className='text-xs font-semibold uppercase tracking-[0.2em] text-slate-500'>Booking details</p>
+            <h3 className='mt-2 text-2xl font-semibold text-slate-900'>Complete renter verification</h3>
+            <p className='mt-2 text-sm text-slate-600'>Please provide valid details and documents before confirming this booking.</p>
+
+            <div className='mt-5 grid grid-cols-1 gap-4 md:grid-cols-2'>
+              <label className='text-sm font-medium text-slate-700'>
+                Full Name
+                <input
+                  required
+                  type='text'
+                  value={bookingProfile.renterName}
+                  onChange={(e) => setBookingProfile((prev) => ({ ...prev, renterName: e.target.value }))}
+                  className='mt-2 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500'
+                />
+              </label>
+              <label className='text-sm font-medium text-slate-700'>
+                Email
+                <input
+                  required
+                  type='email'
+                  value={bookingProfile.renterEmail}
+                  onChange={(e) => setBookingProfile((prev) => ({ ...prev, renterEmail: e.target.value }))}
+                  className='mt-2 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500'
+                />
+              </label>
+              <label className='text-sm font-medium text-slate-700'>
+                Mobile Number
+                <input
+                  required
+                  type='tel'
+                  value={bookingProfile.renterPhone}
+                  onChange={(e) => setBookingProfile((prev) => ({ ...prev, renterPhone: e.target.value }))}
+                  className='mt-2 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500'
+                />
+              </label>
+              <label className='text-sm font-medium text-slate-700'>
+                Driving License Number
+                <input
+                  required
+                  type='text'
+                  value={bookingProfile.drivingLicenseNumber}
+                  onChange={(e) => setBookingProfile((prev) => ({ ...prev, drivingLicenseNumber: e.target.value }))}
+                  className='mt-2 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500'
+                />
+              </label>
+              <label className='text-sm font-medium text-slate-700'>
+                Emergency Contact Name
+                <input
+                  type='text'
+                  value={bookingProfile.emergencyContactName}
+                  onChange={(e) => setBookingProfile((prev) => ({ ...prev, emergencyContactName: e.target.value }))}
+                  className='mt-2 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500'
+                />
+              </label>
+              <label className='text-sm font-medium text-slate-700'>
+                Emergency Contact Phone
+                <input
+                  type='tel'
+                  value={bookingProfile.emergencyContactPhone}
+                  onChange={(e) => setBookingProfile((prev) => ({ ...prev, emergencyContactPhone: e.target.value }))}
+                  className='mt-2 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500'
+                />
+              </label>
+            </div>
+
+            <label className='mt-4 block text-sm font-medium text-slate-700'>
+              Driving License Document (required)
+              <input
+                required
+                type='file'
+                accept='image/*,.pdf'
+                onChange={(e) => setDrivingLicenseDocument(e.target.files?.[0] || null)}
+                className='mt-2 block w-full text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium'
+              />
+            </label>
+
+            <label className='mt-4 block text-sm font-medium text-slate-700'>
+              Additional Document (optional)
+              <input
+                type='file'
+                accept='image/*,.pdf'
+                onChange={(e) => setAdditionalDocument(e.target.files?.[0] || null)}
+                className='mt-2 block w-full text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium'
+              />
+            </label>
+
+            <label className='mt-4 block text-sm font-medium text-slate-700'>
+              Additional Notes (optional)
+              <textarea
+                value={bookingProfile.notes}
+                onChange={(e) => setBookingProfile((prev) => ({ ...prev, notes: e.target.value }))}
+                className='mt-2 h-20 w-full resize-none rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500'
+                placeholder='Any special pickup instructions...'
+              />
+            </label>
+
+            <div className='mt-6 flex justify-end gap-3'>
+              <button
+                type='button'
+                onClick={closeBookingProfileModal}
+                className='rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700'
+              >
+                Cancel
+              </button>
+              <button
+                type='submit'
+                disabled={isSubmittingBooking}
+                className='rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-70'
+              >
+                {isSubmittingBooking ? 'Submitting...' : 'Confirm Booking'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   ) : <Loader />
 }

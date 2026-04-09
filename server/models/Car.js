@@ -14,8 +14,12 @@ const carSchema = new mongoose.Schema({
     transmission: { type:String, required: true},
     pricePerDay: { type:Number, required: true},
     location: { type:String, required: true},
+    preciseLocation: { type:String, default: ''},
+    rcNumber: { type:String, required: true},
+    rcDocument: { type:String, required: true},
     description: { type:String, required: true},
     isAvailable: { type:Boolean, default: true},
+    bookingLockUntil: { type: Date, default: null },
 
 },{timestamps:true})
 

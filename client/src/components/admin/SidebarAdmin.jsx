@@ -25,7 +25,7 @@ const SidebarAdmin = () => {
                 <p className='px-3 text-xs font-semibold uppercase tracking-[0.26em] text-slate-400'>Operations</p>
                 <div className='mt-4 space-y-1.5'>
                     {adminMenuLinks.map((link, index) => {
-                        const isActive = link.path === location.pathname
+                        const isActive = location.pathname === link.path || location.pathname.startsWith(`${link.path}/`)
                         return (
                             <NavLink
                                 key={index}
@@ -44,6 +44,7 @@ const SidebarAdmin = () => {
                                         {link.name === 'Manage Owners' && 'Fleet partners'}
                                         {link.name === 'Manage Cars' && 'Vehicle inventory'}
                                         {link.name === 'Manage Bookings' && 'Reservation flow'}
+                                        {link.name === 'Newsletter' && 'Subscriber emails'}
                                     </p>
                                 </div>
                             </NavLink>

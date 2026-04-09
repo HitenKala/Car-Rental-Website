@@ -17,6 +17,10 @@ const defaultDashboardData = {
     recentBookings: [],
     monthlyPerformance: [],
     topLocations: [],
+    totalFeedbacks: 0,
+    complaintCount: 0,
+    averageOwnerRating: 0,
+    recentFeedbacks: [],
 }
 
 const Chart = ({ data }) => {
@@ -201,6 +205,21 @@ const AdminDashboard = () => {
                     ))}
                 </div>
 
+                <div className='mt-6 grid gap-4 md:grid-cols-3'>
+                    <div className='rounded-2xl bg-slate-50 p-4'>
+                        <p className='text-xs uppercase tracking-[0.22em] text-slate-400'>Feedback Entries</p>
+                        <p className='mt-2 text-2xl font-semibold text-slate-900'>{data.totalFeedbacks}</p>
+                    </div>
+                    <div className='rounded-2xl bg-rose-50 p-4'>
+                        <p className='text-xs uppercase tracking-[0.22em] text-rose-400'>Complaints</p>
+                        <p className='mt-2 text-2xl font-semibold text-rose-700'>{data.complaintCount}</p>
+                    </div>
+                    <div className='rounded-2xl bg-emerald-50 p-4'>
+                        <p className='text-xs uppercase tracking-[0.22em] text-emerald-400'>Avg Owner Rating</p>
+                        <p className='mt-2 text-2xl font-semibold text-emerald-700'>{data.averageOwnerRating ? `${data.averageOwnerRating}/5` : 'N/A'}</p>
+                    </div>
+                </div>
+
                 <div className='mt-8 grid items-start gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.9fr)]'>
                     <Chart data={data.monthlyPerformance} />
 
@@ -338,6 +357,42 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div className='mt-8 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
+                    <div className='flex items-center justify-between gap-4'>
+                        <div>
+                            <p className='text-sm font-semibold text-slate-900'>Reviews & Complaints</p>
+                            <p className='mt-1 text-sm text-slate-500'>Latest owner feedback submitted by renters</p>
+                        </div>
+                        <div className='rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500'>
+                            Moderation Feed
+                        </div>
+                    </div>
+
+                    <div className='mt-5 space-y-3'>
+                        {data.recentFeedbacks?.length === 0 ? (
+                            <div className='rounded-2xl bg-slate-50 p-4 text-sm text-slate-400'>No feedback found yet.</div>
+                        ) : (
+                            data.recentFeedbacks.map((feedback) => (
+                                <div key={feedback._id} className='rounded-2xl border border-slate-200 p-4'>
+                                    <div className='flex flex-wrap items-center justify-between gap-3'>
+                                        <p className='font-medium text-slate-900'>
+                                            {feedback.user?.name || 'User'} • Owner: {feedback.owner?.name || 'Unknown'}
+                                        </p>
+                                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${feedback.type === 'complaint' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                            {feedback.type}
+                                        </span>
+                                    </div>
+                                    <p className='mt-2 text-sm text-slate-600'>{feedback.message}</p>
+                                    <div className='mt-2 flex items-center gap-3 text-xs text-slate-500'>
+                                        <span>{feedback.rating ? `Rating: ${feedback.rating}/5` : 'No rating'}</span>
+                                        <span>{feedback.createdAt?.split('T')[0]}</span>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>

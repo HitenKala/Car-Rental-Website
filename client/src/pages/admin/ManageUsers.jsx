@@ -3,10 +3,12 @@ import { assets } from '../../assets/assets'
 import Title from '../../components/Title'
 import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 const ManageUsers = () => {
 
     const { isAdmin, axios } = useAppContext()
+    const navigate = useNavigate()
 
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(false)
@@ -110,7 +112,15 @@ const ManageUsers = () => {
                                         </span>
                                     </td>
                                     <td className='p-3'>
-                                        <img onClick={() => deleteUser(user._id)} src={assets.delete_icon} alt="" className='cursor-pointer' />
+                                        <div className='flex items-center gap-3'>
+                                            <button
+                                                onClick={() => navigate(`/admin/users/${user._id}`)}
+                                                className='rounded-md bg-slate-700 px-3 py-1.5 text-xs font-semibold text-white'
+                                            >
+                                                View
+                                            </button>
+                                            <img onClick={() => deleteUser(user._id)} src={assets.delete_icon} alt="" className='cursor-pointer' />
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
