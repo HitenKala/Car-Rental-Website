@@ -56,7 +56,7 @@ const Hero = () => {
           </div>
           <div className='flex min-w-0 flex-col items-start gap-2'>
             <label htmlFor="return-date">Drop-off Date</label>
-            <input value={returnDate} onChange={e => setReturnDate(e.target.value)} type="date" id='return-date'
+            <input value={returnDate} onChange={e => setReturnDate(e.target.value)} type="date" id='return-date'  min={new Date().toISOString().split('T')[0]}
               className='w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-gray-500' required />
           </div>
           <div className='flex min-w-0 flex-col items-start gap-2'>
