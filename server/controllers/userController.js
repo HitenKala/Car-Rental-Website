@@ -2,81 +2,110 @@ import User from "../models/User.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
+import nodemailer from "nodemailer"
 import Car from "../models/Car.js";
 import NewsletterSubscriber from "../models/NewsletterSubscriber.js";
 
+const mailTransporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: Number(process.env.EMAIL_PORT) || 587,
+    secure: process.env.EMAIL_SECURE === 'true',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+})
+
+const sendResetCodeEmail = async (recipientEmail, resetCode) => {
+    if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.warn('Email is not configured in environment variables. Reset code will not be delivered by email.');
+        return false;
+    }
+
+    const mailOptions = {
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        to: recipientEmail,
+        subject: 'Turbo Rides password reset code',
+        text: `Your Turbo Rides password reset code is ${resetCode}. This code expires in 15 minutes.`,
+        html: `<p>Your Turbo Rides password reset code is <strong>${resetCode}</strong>.</p><p>This code expires in 15 minutes.</p>`,
+    }
+
+    await mailTransporter.sendMail(mailOptions)
+    return true
+}
+
 //Generate JWT Token
-const generateToken = (userID)=>{
+const generateToken = (userID) => {
     const payload = userID;
     return jwt.sign(payload, process.env.JWT_SECRET)
 }
 
 //User Registration
-export const regsisterUser = async(req, res) => {
+export const regsisterUser = async (req, res) => {
     try {
-        const {name, email, password} = req.body
+        const { name, email, password } = req.body
 
-        if (!name || !email || !password || password.length<8){
-            return res.json({success:false, message:"Fill all the fields correctly"})
+        if (!name || !email || !password || password.length < 8) {
+            return res.json({ success: false, message: "Fill all the fields correctly" })
         }
-        const userExists = await User.findOne({email})
-        if (userExists){
-            return res.json({success:false, message:"User already exists"})
+        const userExists = await User.findOne({ email })
+        if (userExists) {
+            return res.json({ success: false, message: "User already exists" })
         }
         const hashedPassword = await bcrypt.hash(password, 10)
-        const user = await User.create({name,email,password:hashedPassword})
+        const user = await User.create({ name, email, password: hashedPassword })
         const token = generateToken(user._id.toString())
-        res.json({success: true, token})
+        res.json({ success: true, token })
 
     } catch (error) {
         console.log(error.message);
-        res.json({success:false, message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
 //User Login
-export const loginUser = async(req, res) => {
+export const loginUser = async (req, res) => {
     try {
-        const {email, password} = req.body
-        const user = await User.findOne({email})
-        if (!user){
-            return res.json({success:false, message:"User does not exist"})
+        const { email, password } = req.body
+        const user = await User.findOne({ email })
+        if (!user) {
+            return res.json({ success: false, message: "User does not exist" })
         }
         const isMatch = await bcrypt.compare(password, user.password)
-        if (!isMatch){
-            return res.json({success:false, message:"Invalid credentials"})
+        if (!isMatch) {
+            return res.json({ success: false, message: "Invalid credentials" })
         }
         const token = generateToken(user._id.toString())
-        res.json({success: true, token})
+        res.json({ success: true, token })
 
     } catch (error) {
         console.log(error.message);
-        res.json({success:false, message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
 //Get User data from token(JWT)
-export const getUserData = async(req,res)=>{
+export const getUserData = async (req, res) => {
     try {
-        const {user} = req;
+        const { user } = req;
         if (!user) {
-            return res.json({success:false, message:"User not found"})
+            return res.json({ success: false, message: "User not found" })
         }
-        res.json({success:true, user})
+        res.json({ success: true, user })
     } catch (error) {
         console.log(error.message);
-        res.json({success:false, message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
 //Get All Cars for the frontend
-export const getCars = async(req,res)=>{
+export const getCars = async (req, res) => {
     try {
-        const cars = await Car.find({isAvailable:true})
-        res.json({success:true, cars})
+        const cars = await Car.find({ isAvailable: true })
+        res.json({ success: true, cars })
     } catch (error) {
         console.log(error.message);
-        res.json({success:false, message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
@@ -102,12 +131,15 @@ export const forgotPassword = async (req, res) => {
         user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000)
         await user.save()
 
+        const emailDelivered = await sendResetCodeEmail(email, resetCode)
         const response = {
-            success: true,
-            message: "Password reset code generated. It expires in 15 minutes.",
+            success: emailDelivered || process.env.NODE_ENV !== "production",
+            message: emailDelivered
+                ? "Password reset code sent to your email. It expires in 15 minutes."
+                : "Password reset request created, but email delivery is not configured. Check server logs or configure SMTP settings.",
         }
 
-        if (process.env.NODE_ENV !== "production") {
+        if (!emailDelivered && process.env.NODE_ENV !== "production") {
             response.resetCode = resetCode
         }
 

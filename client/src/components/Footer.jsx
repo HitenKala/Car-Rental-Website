@@ -66,7 +66,7 @@ const Footer = () => {
                         <a href='https://x.com' target='_blank' rel='noreferrer'>
                             <img src={assets.twitter_logo} className='w-5 h-5' alt='x' />
                         </a>
-                        <a href='mailto:info@turborides.com'>
+                        <a href='mailto:info@turborides.com' className='hover:opacity-70 transition-opacity duration-200'>
                             <img src={assets.gmail_logo} className='w-5 h-5' alt='email' />
                         </a>
                     </motion.div>
@@ -111,8 +111,8 @@ const Footer = () => {
                                 </a>
                             </li>
                             <li>Pauri, Uttarakhand</li>
-                            <li><a href='tel:+15551234567'>+91 9548487346</a></li>
-                            <li><a href='mailto:info@turborides.com'>info@turborides.com</a></li>
+                            <li><a href='tel:+91 9548487346'>+91 9548487346</a></li>
+                            <li><a href='mailto:TurboRides.info@gmail.com' className='text-gray-500 hover:text-blue-600 transition-colors duration-200 underline'>turborides.info@gmail.com</a></li>
                         </ul>
                     </div>
                 </motion.div>
