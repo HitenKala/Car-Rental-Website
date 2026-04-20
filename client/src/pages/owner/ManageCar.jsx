@@ -3,6 +3,8 @@ import { assets } from '../../assets/assets'
 import Title from '../../components/owner/Title'
 import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
+import LocationMap from '../../components/LocationMap'
+import { buildGoogleMapsUrl, resolveCoordinates } from '../../utils/locationMap'
 
 const ManageCar = () => {
 
@@ -25,6 +27,7 @@ const ManageCar = () => {
     pricePerDay: '',
     location: '',
     preciseLocation: '',
+    pickupCoordinates: null,
     rcNumber: '',
     description: '',
     isAvailable: true,
@@ -88,6 +91,7 @@ const ManageCar = () => {
       pricePerDay: car.pricePerDay || '',
       location: car.location || '',
       preciseLocation: car.preciseLocation || '',
+      pickupCoordinates: car.pickupCoordinates || null,
       rcNumber: car.rcNumber || '',
       description: car.description || '',
       isAvailable: !!car.isAvailable,
@@ -161,6 +165,9 @@ const ManageCar = () => {
   useEffect(() => {
     isOwner && fetchOwnerCars()
   }, [isOwner])
+
+  const mapCoordinates = resolveCoordinates(editForm.location, editForm.pickupCoordinates)
+  const mapLabel = editForm.preciseLocation || editForm.location
 
   return (
     <div className='px-4 pt-10 md:px-10 w-full'>
@@ -276,6 +283,41 @@ const ManageCar = () => {
               Description
               <textarea required value={editForm.description} onChange={(e) => handleEditChange('description', e.target.value)} className='mt-2 h-24 w-full resize-none rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none' />
             </label>
+
+            <div className='mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4'>
+              <div className='flex flex-wrap items-start justify-between gap-3'>
+                <div>
+                  <p className='text-sm font-semibold text-slate-900'>Pickup map preview</p>
+                  <p className='mt-1 text-xs text-slate-500'>
+                    {mapCoordinates
+                      ? `Lat ${mapCoordinates.lat.toFixed(4)}, Lng ${mapCoordinates.lng.toFixed(4)}`
+                      : 'This car will fall back to its city center on the map until exact coordinates are saved.'}
+                  </p>
+                </div>
+                {mapLabel ? (
+                  <a
+                    href={buildGoogleMapsUrl({ label: mapLabel, coordinates: mapCoordinates })}
+                    target='_blank'
+                    rel='noreferrer'
+                    className='text-xs font-medium text-blue-600'
+                  >
+                    Open in Google Maps
+                  </a>
+                ) : null}
+              </div>
+
+              {mapCoordinates ? (
+                <div className='mt-4'>
+                  <LocationMap
+                    coordinates={mapCoordinates}
+                    title='Pickup preview'
+                    subtitle={mapLabel}
+                    height={260}
+                    zoom={14}
+                  />
+                </div>
+              ) : null}
+            </div>
 
             <div className='mt-4 grid grid-cols-1 gap-4 md:grid-cols-2'>
               <label className='block text-sm font-medium text-slate-700'>

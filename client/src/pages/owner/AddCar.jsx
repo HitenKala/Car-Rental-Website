@@ -3,15 +3,8 @@ import Title from '../../components/owner/Title';
 import { assets, cityList } from '../../assets/assets';
 import { useAppContext } from '../../context/AppContext';
 import toast from 'react-hot-toast';
-
-const CITY_COORDINATES = {
-  Dehradun: { lat: 30.3165, lon: 78.0322 },
-  Haridwar: { lat: 29.9457, lon: 78.1642 },
-  Rishikesh: { lat: 30.0869, lon: 78.2676 },
-  Nainital: { lat: 29.3919, lon: 79.4542 },
-  Mussoorie: { lat: 30.4598, lon: 78.0644 },
-  Haldwani: { lat: 29.2183, lon: 79.5130 },
-};
+import LocationMap from '../../components/LocationMap';
+import { buildGoogleMapsUrl, CITY_COORDINATES, resolveCoordinates } from '../../utils/locationMap';
 
 const toRadians = (value) => (value * Math.PI) / 180;
 
@@ -25,6 +18,22 @@ const getDistanceKm = (lat1, lon1, lat2, lon2) => {
     Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return earthRadiusKm * c;
+};
+
+const buildPreciseLocationLabel = (address = {}) => {
+  const preferredParts = [
+    address.road,
+    address.suburb,
+    address.neighbourhood,
+    address.city || address.town || address.village,
+    address.state,
+  ].filter(Boolean);
+
+  if (preferredParts.length > 0) {
+    return preferredParts.slice(0, 4).join(', ');
+  }
+
+  return '';
 };
 
 const AddCar = () => {
@@ -44,6 +53,7 @@ const AddCar = () => {
     seating_capacity: 0,
     location: "",
     preciseLocation: "",
+    pickupCoordinates: null,
     rcNumber: "",
     description: "",
     isAvailable: true,
@@ -67,7 +77,7 @@ const AddCar = () => {
           const coords = CITY_COORDINATES[city];
           if (!coords) return closest;
 
-          const distance = getDistanceKm(latitude, longitude, coords.lat, coords.lon);
+          const distance = getDistanceKm(latitude, longitude, coords.lat, coords.lng);
           if (!closest || distance < closest.distance) {
             return { city, distance };
           }
@@ -80,9 +90,44 @@ const AddCar = () => {
           return;
         }
 
-        setCar((prev) => ({ ...prev, location: nearestCity.city }));
-        toast.success(`Nearest pickup location selected: ${nearestCity.city}`);
-        setIsDetectingLocation(false);
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
+          .then((response) => response.json())
+          .then((locationData) => {
+            const detectedPreciseLocation =
+              buildPreciseLocationLabel(locationData?.address) ||
+              locationData?.display_name ||
+              '';
+
+            setCar((prev) => ({
+              ...prev,
+              location: nearestCity.city,
+              preciseLocation: detectedPreciseLocation || prev.preciseLocation,
+              pickupCoordinates: {
+                lat: Number(latitude.toFixed(6)),
+                lng: Number(longitude.toFixed(6)),
+              },
+            }));
+
+            toast.success(
+              detectedPreciseLocation
+                ? `Location detected: ${detectedPreciseLocation}`
+                : `Nearest pickup location selected: ${nearestCity.city}`
+            );
+          })
+          .catch(() => {
+            setCar((prev) => ({
+              ...prev,
+              location: nearestCity.city,
+              pickupCoordinates: {
+                lat: Number(latitude.toFixed(6)),
+                lng: Number(longitude.toFixed(6)),
+              },
+            }));
+            toast.success(`Nearest pickup location selected: ${nearestCity.city}`);
+          })
+          .finally(() => {
+            setIsDetectingLocation(false);
+          });
       },
       (error) => {
         console.log(error);
@@ -132,6 +177,7 @@ const AddCar = () => {
           seating_capacity: 0,
           location: "",
           preciseLocation: "",
+          pickupCoordinates: null,
           rcNumber: "",
           description: "",
           isAvailable: true,
@@ -145,6 +191,9 @@ const AddCar = () => {
       setIsLoading(false);
     }
   }
+
+  const mapCoordinates = resolveCoordinates(car.location, car.pickupCoordinates);
+  const mapLabel = car.preciseLocation || car.location;
 
   return (
     <div className='px-4 pt-10 md:px-10 flex-1'>
@@ -280,6 +329,40 @@ const AddCar = () => {
           />
           <p className='mt-1 text-xs text-gray-500'>Add exact landmark/address visible to users after booking.</p>
 
+        </div>
+        <div className='rounded-2xl border border-slate-200 bg-slate-50 p-4'>
+          <div className='flex flex-wrap items-start justify-between gap-3'>
+            <div>
+              <p className='text-sm font-semibold text-slate-900'>Pickup map preview</p>
+              <p className='mt-1 text-xs text-slate-500'>
+                {mapCoordinates
+                  ? `Lat ${mapCoordinates.lat.toFixed(4)}, Lng ${mapCoordinates.lng.toFixed(4)}`
+                  : 'Select a city or use current location to preview the pickup point.'}
+              </p>
+            </div>
+            {mapLabel ? (
+              <a
+                href={buildGoogleMapsUrl({ label: mapLabel, coordinates: mapCoordinates })}
+                target='_blank'
+                rel='noreferrer'
+                className='text-xs font-medium text-blue-600'
+              >
+                Open in Google Maps
+              </a>
+            ) : null}
+          </div>
+
+          {mapCoordinates ? (
+            <div className='mt-4'>
+              <LocationMap
+                coordinates={mapCoordinates}
+                title='Pickup preview'
+                subtitle={mapLabel}
+                height={260}
+                zoom={14}
+              />
+            </div>
+          ) : null}
         </div>
         {/* Description */}
         <div className='flex flex-col w-full'>

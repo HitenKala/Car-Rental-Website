@@ -5,6 +5,8 @@ import Loader from '../components/Loader';
 import { useAppContext } from '../context/AppContext';
 import toast from 'react-hot-toast';
 import { motion } from 'motion/react';
+import LocationMap from '../components/LocationMap';
+import { buildGoogleMapsUrl, resolveCoordinates } from '../utils/locationMap';
 
 const CarDetails = () => {
 
@@ -98,6 +100,9 @@ const CarDetails = () => {
 
   useEffect(() => { setCar(cars.find(car => car._id === id)) }, [cars, id])
 
+  const mapCoordinates = resolveCoordinates(car?.location, car?.pickupCoordinates);
+  const mapLabel = car?.preciseLocation || car?.location || '';
+
   return car ? (
     <div className='px-6 md:px-16 lg:px-24 xl:px-32 mt-16 '>
 
@@ -157,6 +162,51 @@ const CarDetails = () => {
                   <span className='font-medium text-gray-700'>Precise pickup:</span> {car.preciseLocation}
                 </p>
               ) : null}
+            </div>
+            {/* Google Map */}
+            <div>
+              <h1 className='text-xl font-medium mb-3'>Pickup location</h1>
+              {mapCoordinates ? (
+                <LocationMap
+                  coordinates={mapCoordinates}
+                  title='Car pickup location'
+                  subtitle={mapLabel}
+                  height={320}
+                  zoom={14}
+                />
+              ) : (
+                <div className='overflow-hidden rounded-2xl border border-gray-200'>
+                  <iframe
+                    title='Car pickup location map'
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(mapLabel)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                    width='100%'
+                    height='320'
+                    className='min-h-[320px] w-full border-0'
+                    allowFullScreen
+                    loading='lazy'
+                    referrerPolicy='no-referrer-when-downgrade'
+                  />
+                </div>
+              )}
+              <div className='mt-3 flex flex-wrap items-center gap-3 text-sm'>
+                <a
+                  href={buildGoogleMapsUrl({ label: mapLabel, coordinates: mapCoordinates })}
+                  target='_blank'
+                  rel='noreferrer'
+                  className='rounded-lg bg-blue-50 px-4 py-2 font-medium text-blue-700 transition hover:bg-blue-100'
+                >
+                  Open in Google Maps
+                </a>
+                {mapCoordinates ? (
+                  <p className='text-gray-500'>
+                    Exact map pin available for this pickup point.
+                  </p>
+                ) : (
+                  <p className='text-gray-500'>
+                    Using city-level fallback because this car does not have saved coordinates yet.
+                  </p>
+                )}
+              </div>
             </div>
             {/* Features */}
             <div>

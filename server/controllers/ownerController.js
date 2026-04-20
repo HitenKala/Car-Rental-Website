@@ -9,6 +9,21 @@ const ensureOwnerOrAdmin = (user) => {
     return user.role === 'owner' || user.role === 'admin';
 };
 
+const normalizePickupCoordinates = (coordinates) => {
+    if (!coordinates || coordinates.lat === '' || coordinates.lng === '') {
+        return null;
+    }
+
+    const lat = Number(coordinates.lat);
+    const lng = Number(coordinates.lng);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return null;
+    }
+
+    return { lat, lng };
+};
+
 //API to change role of user
 export const changeRoleToOwner = async (req, res) => {
     try {
@@ -95,6 +110,11 @@ export const addCar = async (req, res) => {
             return res.status(400).json({ success: false, message: 'carData must be valid JSON string' });
         }
 
+        const pickupCoordinates = normalizePickupCoordinates(car.pickupCoordinates);
+        if (car.pickupCoordinates && !pickupCoordinates) {
+            return res.status(400).json({ success: false, message: 'pickupCoordinates must contain valid lat and lng values' });
+        }
+
         const allFiles = req.file ? [req.file] : (req.files || []);
         const imageFile = allFiles.find((file) => file.fieldname === 'image') || allFiles[0];
         const rcDocumentFile = allFiles.find((file) => file.fieldname === 'rcDocument');
@@ -153,7 +173,14 @@ export const addCar = async (req, res) => {
             finalImage: image
         });
         const rcDocument = rcUploadRes.url || rcUploadRes.filePath || rcUploadRes.name;
-        await Car.create({ ...car, owner: _id, image, rcDocument, rcNumber: String(car.rcNumber).trim() })
+        await Car.create({
+            ...car,
+            owner: _id,
+            image,
+            rcDocument,
+            rcNumber: String(car.rcNumber).trim(),
+            pickupCoordinates: pickupCoordinates || undefined,
+        })
 
         res.json({ success: true, message: "car added" })
 
@@ -356,6 +383,7 @@ export const updateCarDetails = async (req, res) => {
             'pricePerDay',
             'location',
             'preciseLocation',
+            'pickupCoordinates',
             'description',
             'rcNumber',
             'isAvailable',
@@ -390,6 +418,21 @@ export const updateCarDetails = async (req, res) => {
 
             if (field === 'isAvailable') {
                 car[field] = Boolean(value);
+                continue;
+            }
+
+            if (field === 'pickupCoordinates') {
+                if (!value) {
+                    car.pickupCoordinates = { lat: null, lng: null };
+                    continue;
+                }
+
+                const normalizedCoordinates = normalizePickupCoordinates(value);
+                if (!normalizedCoordinates) {
+                    return res.status(400).json({ success: false, message: 'pickupCoordinates must contain valid lat and lng values' });
+                }
+
+                car.pickupCoordinates = normalizedCoordinates;
                 continue;
             }
 
