@@ -80,3 +80,10 @@ npm run dev
 ```
 
 The frontend will be available at `http://localhost:5173` and the backend will be running on `http://localhost:3000`.
+
+## 👨‍💻 Contributors
+
+- Hiten Kala – Lead Developer (designed and built core application, backend APIs, authentication, booking logic)
+- Rahul – UI improvements and testing
+- Gaurav – Minor contributions
+- Aditya – Documentation and testing

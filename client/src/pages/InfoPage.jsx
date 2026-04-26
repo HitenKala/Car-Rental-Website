@@ -8,6 +8,13 @@ const pageContent = {
     body: [
       'TurboRides connects verified car owners with renters through a simple and secure booking flow.',
       'We focus on transparent pricing, verified documents, and support-first operations for both customers and owners.',
+      'This car rental platform was developed with the aim of connecting car owners and renters through a simple and efficient system.',
+      'The project was initially designed and developed by Hiten Kala, focusing on backend APIs, authentication, and booking logic. Further improvements, testing, and enhancements were carried out collaboratively by the team.',
+      'Team Members:',
+      'Hiten Kala (Lead Developer)',
+      'Rahul Khichar',
+      'Gaurav Chamoli',
+      'Aditya'
     ],
   },
   'help-center': {
