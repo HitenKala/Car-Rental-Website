@@ -100,6 +100,38 @@ const CarDetails = () => {
 
   useEffect(() => { setCar(cars.find(car => car._id === id)) }, [cars, id])
 
+  useEffect(() => {
+    if (pickupDate && returnDate && pickupDate > returnDate) {
+      setReturnDate(pickupDate);
+    }
+  }, [pickupDate, returnDate]);
+
+  useEffect(() => {
+    if (returnDate === pickupDate && pickupTime && returnTime && returnTime <= pickupTime) {
+      const [hours, minutes] = pickupTime.split(':');
+      const newTime = new Date();
+      newTime.setHours(parseInt(hours) + 1, parseInt(minutes));
+      setReturnTime(newTime.toTimeString().slice(0, 5));
+    }
+  }, [pickupDate, returnDate, pickupTime, returnTime]);
+
+  const getMinPickupTime = () => {
+    const today = new Date().toISOString().split('T')[0];
+    if (pickupDate === today) {
+      const now = new Date();
+      now.setHours(now.getHours() + 1); // add 1 hour buffer
+      return now.toTimeString().slice(0, 5);
+    }
+    return undefined;
+  };
+
+  const getMinReturnTime = () => {
+    if (returnDate === pickupDate && pickupTime) {
+      return pickupTime;
+    }
+    return undefined;
+  };
+
   const mapCoordinates = resolveCoordinates(car?.location, car?.pickupCoordinates);
   const mapLabel = car?.preciseLocation || car?.location || '';
 
@@ -250,19 +282,22 @@ const CarDetails = () => {
             <div className='flex flex-col gap-2'>
               <label htmlFor="pickup-time">Pickup Time</label>
               <input value={pickupTime} onChange={(e) => setPickupTime(e.target.value)}
-                type="time" className='w-full border border-gray-300 px-3 py-2 rounded-lg' required id='pickup-time' />
+                type="time" className='w-full border border-gray-300 px-3 py-2 rounded-lg' required id='pickup-time'
+                min={getMinPickupTime()} />
             </div>
 
             <div className='flex flex-col gap-2'>
               <label htmlFor="return-date">Drop-off Date</label>
               <input value={returnDate} onChange={(e) => setReturnDate(e.target.value)}
-                type="date" className='w-full border border-gray-300 px-3 py-2 rounded-lg' required id='return-date' />
+                type="date" className='w-full border border-gray-300 px-3 py-2 rounded-lg' required id='return-date'
+                min={pickupDate} />
             </div>
 
             <div className='flex flex-col gap-2'>
               <label htmlFor="return-time">Drop-off Time</label>
               <input value={returnTime} onChange={(e) => setReturnTime(e.target.value)}
-                type="time" className='w-full border border-gray-300 px-3 py-2 rounded-lg' required id='return-time' />
+                type="time" className='w-full border border-gray-300 px-3 py-2 rounded-lg' required id='return-time'
+                min={getMinReturnTime()} />
             </div>
           </div>
 

@@ -19,8 +19,15 @@ export const AppProvider = ({ children }) => {
     const [showLogin, setShowLogin] = useState(false)
     const [pickupDate, setPickupDate] = useState('')
     const [returnDate, setReturnDate] = useState('')
-    const [pickupTime, setPickupTime] = useState('10:00')
-    const [returnTime, setReturnTime] = useState('10:00')
+    const getTimeOffset = (minutesOffset = 0) => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + minutesOffset);
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+    const [pickupTime, setPickupTime] = useState(getTimeOffset(60))
+    const [returnTime, setReturnTime] = useState(getTimeOffset(120))
     const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
     const [cars, setCars] = useState([])

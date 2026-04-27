@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { assets, cityList } from '../assets/assets'
 import { useAppContext } from '../context/AppContext';
 import { motion } from 'motion/react';
@@ -8,6 +8,43 @@ const Hero = () => {
   const [pickupLocation, setPickupLocation] = useState("");
 
   const { pickupDate, setPickupDate, returnDate, setReturnDate, pickupTime, setPickupTime, returnTime, setReturnTime, navigate } = useAppContext()
+  const today = new Date().toISOString().split('T')[0];
+
+  const getMinPickupTime = () => {
+    if (pickupDate === today) {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + 60);
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    return '00:00';
+  }
+
+  const getMinReturnTime = () => {
+    if (!pickupDate) return '00:00';
+    if (returnDate === pickupDate) return pickupTime || '00:00';
+    return '00:00';
+  }
+
+  useEffect(() => {
+    if (pickupDate === today && pickupTime && pickupTime < getMinPickupTime()) {
+      setPickupTime(getMinPickupTime());
+    }
+  }, [pickupDate, pickupTime]);
+
+  useEffect(() => {
+    if (pickupDate && returnDate && returnDate < pickupDate) {
+      setReturnDate(pickupDate);
+    }
+  }, [pickupDate, returnDate]);
+
+  useEffect(() => {
+    if (pickupDate && returnDate && pickupDate === returnDate && pickupTime && returnTime && returnTime < pickupTime) {
+      setReturnTime(pickupTime);
+    }
+  }, [pickupDate, returnDate, pickupTime, returnTime]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     navigate('/cars?pickupLocation=' + pickupLocation + '&pickupDate=' + pickupDate + '&returnDate=' + returnDate + '&pickupTime=' + pickupTime + '&returnTime=' + returnTime);
@@ -52,16 +89,18 @@ const Hero = () => {
           <div className='flex min-w-0 flex-col items-start gap-2'>
             <label htmlFor="pickup-time">Pick-up Time</label>
             <input value={pickupTime} onChange={e => setPickupTime(e.target.value)} type="time" id='pickup-time'
+              min={getMinPickupTime()}
               className='w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-gray-500' required />
           </div>
           <div className='flex min-w-0 flex-col items-start gap-2'>
             <label htmlFor="return-date">Drop-off Date</label>
-            <input value={returnDate} onChange={e => setReturnDate(e.target.value)} type="date" id='return-date'  min={new Date().toISOString().split('T')[0]}
+            <input value={returnDate} onChange={e => setReturnDate(e.target.value)} type="date" id='return-date' min={pickupDate || today}
               className='w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-gray-500' required />
           </div>
           <div className='flex min-w-0 flex-col items-start gap-2'>
             <label htmlFor="return-time">Drop-off Time</label>
             <input value={returnTime} onChange={e => setReturnTime(e.target.value)} type="time" id='return-time'
+              min={getMinReturnTime()}
               className='w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-gray-500' required />
           </div>
           <motion.button
@@ -75,11 +114,11 @@ const Hero = () => {
       </motion.form>
 
       <motion.img
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, delay: 0.6 }}
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.6 }}
 
-      src={assets.main_car4} alt="Car" className='w-full max-w-[900px] px-4 sm:px-0 md:max-h-74 md:w-auto' />
+        src={assets.main_car4} alt="Car" className='w-full max-w-[900px] px-4 sm:px-0 md:max-h-74 md:w-auto' />
 
     </motion.div>
   )
