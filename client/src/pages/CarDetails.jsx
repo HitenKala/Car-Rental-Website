@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { assets } from '../assets/assets';
 import Loader from '../components/Loader';
 import { useAppContext } from '../context/AppContext';
@@ -12,9 +12,10 @@ const CarDetails = () => {
 
   const { id } = useParams();
 
-  const { cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate, pickupTime, setPickupTime, returnTime, setReturnTime, currency, user, setShowLogin } = useAppContext();
+  const { cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate, pickupTime, setPickupTime, returnTime, setReturnTime, currency, user, setShowLogin, setRedirectPath } = useAppContext();
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [car, setCar] = useState(null);
   const [showBookingProfileModal, setShowBookingProfileModal] = useState(false);
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
@@ -33,6 +34,7 @@ const CarDetails = () => {
   const openBookingProfileModal = (e) => {
     e.preventDefault();
     if (!user) {
+      setRedirectPath(`${location.pathname}${location.search}`)
       setShowLogin(true);
       return;
     }
@@ -106,12 +108,16 @@ const CarDetails = () => {
     }
   }, [pickupDate, returnDate]);
 
+  const addMinutesToTime = (time, increment) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes + increment);
+    return date.toTimeString().slice(0, 5);
+  }
+
   useEffect(() => {
     if (returnDate === pickupDate && pickupTime && returnTime && returnTime <= pickupTime) {
-      const [hours, minutes] = pickupTime.split(':');
-      const newTime = new Date();
-      newTime.setHours(parseInt(hours) + 1, parseInt(minutes));
-      setReturnTime(newTime.toTimeString().slice(0, 5));
+      setReturnTime(addMinutesToTime(pickupTime, 60));
     }
   }, [pickupDate, returnDate, pickupTime, returnTime]);
 
@@ -119,7 +125,7 @@ const CarDetails = () => {
     const today = new Date().toISOString().split('T')[0];
     if (pickupDate === today) {
       const now = new Date();
-      now.setHours(now.getHours() + 1); // add 1 hour buffer
+      now.setHours(now.getHours() + 0, now.getMinutes() + 30); // add 30 minutes buffer
       return now.toTimeString().slice(0, 5);
     }
     return undefined;
@@ -127,7 +133,7 @@ const CarDetails = () => {
 
   const getMinReturnTime = () => {
     if (returnDate === pickupDate && pickupTime) {
-      return pickupTime;
+      return addMinutesToTime(pickupTime, 60);
     }
     return undefined;
   };

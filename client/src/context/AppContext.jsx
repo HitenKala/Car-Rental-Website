@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -10,6 +10,7 @@ export const AppContext = createContext();
 export const AppProvider = ({ children }) => {
 
     const navigate = useNavigate();
+    const location = useLocation();
     const currency = '\u20B9';
 
     const [token, setToken] = useState(null)
@@ -17,6 +18,7 @@ export const AppProvider = ({ children }) => {
     const [isOwner, setIsOwner] = useState(false)
     const [isAdmin, setIsAdmin] = useState(false)
     const [showLogin, setShowLogin] = useState(false)
+    const [redirectPath, setRedirectPath] = useState(null)
     const [pickupDate, setPickupDate] = useState('')
     const [returnDate, setReturnDate] = useState('')
     const getTimeOffset = (minutesOffset = 0) => {
@@ -26,11 +28,16 @@ export const AppProvider = ({ children }) => {
         const minutes = String(now.getMinutes()).padStart(2, '0');
         return `${hours}:${minutes}`;
     }
-    const [pickupTime, setPickupTime] = useState(getTimeOffset(60))
+    const [pickupTime, setPickupTime] = useState(getTimeOffset(30))
     const [returnTime, setReturnTime] = useState(getTimeOffset(120))
     const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
     const [cars, setCars] = useState([])
+
+    const openLogin = (path) => {
+        setRedirectPath(path || `${location.pathname}${location.search}`)
+        setShowLogin(true)
+    }
 
     //Function to check if user is logged in
     const fetchUser = async () => {
@@ -108,7 +115,7 @@ export const AppProvider = ({ children }) => {
     const value = {
         navigate, currency, axios, user, setUser,
         token, setToken, isOwner, setIsOwner, isAdmin, setIsAdmin, fetchUser,
-        showLogin, setShowLogin, logout, fetchCars,
+        showLogin, setShowLogin, openLogin, redirectPath, setRedirectPath, logout, fetchCars,
         cars, setCars, pickupDate, setPickupDate, returnDate, setReturnDate,
         pickupTime, setPickupTime, returnTime, setReturnTime,
         isCheckingAuth

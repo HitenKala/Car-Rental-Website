@@ -13,7 +13,7 @@ const Hero = () => {
   const getMinPickupTime = () => {
     if (pickupDate === today) {
       const now = new Date();
-      now.setMinutes(now.getMinutes() + 60);
+      now.setMinutes(now.getMinutes() + 30);
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
       return `${hours}:${minutes}`;
@@ -21,9 +21,16 @@ const Hero = () => {
     return '00:00';
   }
 
+  const addMinutesToTime = (time, minutesToAdd) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes + minutesToAdd);
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  }
+
   const getMinReturnTime = () => {
     if (!pickupDate) return '00:00';
-    if (returnDate === pickupDate) return pickupTime || '00:00';
+    if (returnDate === pickupDate && pickupTime) return addMinutesToTime(pickupTime, 60);
     return '00:00';
   }
 
@@ -40,8 +47,8 @@ const Hero = () => {
   }, [pickupDate, returnDate]);
 
   useEffect(() => {
-    if (pickupDate && returnDate && pickupDate === returnDate && pickupTime && returnTime && returnTime < pickupTime) {
-      setReturnTime(pickupTime);
+    if (pickupDate && returnDate && pickupDate === returnDate && pickupTime && returnTime && returnTime <= pickupTime) {
+      setReturnTime(addMinutesToTime(pickupTime, 60));
     }
   }, [pickupDate, returnDate, pickupTime, returnTime]);
 

@@ -4,7 +4,7 @@ import { assets } from '../assets/assets'
 import { useAppContext } from '../context/AppContext'
 
 const Login = () => {
-    const { setShowLogin, axios, setToken, navigate } = useAppContext()
+    const { setShowLogin, axios, setToken, navigate, redirectPath, setRedirectPath } = useAppContext()
 
     const [state, setState] = React.useState('login')
     const [name, setName] = React.useState('')
@@ -81,7 +81,9 @@ const Login = () => {
             })
 
             if (data.success) {
-                navigate('/')
+                const destination = redirectPath || '/'
+                navigate(destination)
+                setRedirectPath(null)
                 setToken(data.token)
                 localStorage.setItem('token', data.token)
                 setShowLogin(false)
