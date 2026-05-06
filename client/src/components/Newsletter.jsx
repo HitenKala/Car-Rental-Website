@@ -34,13 +34,13 @@ const Newsletter = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
             viewport={{ once: true, amount: 0.3 }}
-            className="flex flex-col items-center justify-center text-center space-y-2 max-md:px-4 my-10 mb-40"
+            className="mx-auto my-12 mb-24 flex max-w-4xl flex-col items-center justify-center rounded-[28px] bg-slate-50 px-4 py-12 text-center sm:px-6 md:mb-32 md:px-8"
         >
             <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
-                className="md:text-4xl text-2xl font-semibold"
+                className="text-2xl font-semibold sm:text-3xl md:text-4xl"
             >
                 Never Miss a Deal!
             </motion.h1>
@@ -49,7 +49,7 @@ const Newsletter = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
-                className="md:text-lg text-gray-500/70 pb-8"
+                className="max-w-2xl pb-8 text-sm leading-6 text-gray-500/80 sm:text-base md:text-lg"
             >
                 Subscribe to get the latest offers, new arrivals, and exclusive discounts
             </motion.p>
@@ -59,10 +59,10 @@ const Newsletter = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
                 onSubmit={handleSubmit}
-                className="flex items-center justify-between max-w-2xl w-full md:h-13 h-12"
+                className="flex w-full max-w-2xl flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between"
             >
                 <input
-                    className="border border-gray-300 rounded-md h-full border-r-0 outline-none w-full rounded-r-none px-3 text-gray-500"
+                    className="h-12 w-full rounded-md border border-gray-300 px-4 text-gray-500 outline-none sm:rounded-r-none sm:border-r-0"
                     type="email"
                     placeholder="Enter your email id"
                     required
@@ -72,7 +72,7 @@ const Newsletter = () => {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="md:px-12 px-8 h-full text-white bg-[#185a9d] hover:bg-[#102f4e] transition-all cursor-pointer rounded-md rounded-l-none disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="h-12 rounded-md bg-[#185a9d] px-8 text-white transition-all hover:bg-[#102f4e] cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 sm:rounded-l-none sm:px-10 md:px-12"
                 >
                     {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                 </button>

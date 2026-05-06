@@ -10,7 +10,7 @@ const SidebarAdmin = () => {
     const location = useLocation()
 
     return (
-        <aside className='hidden min-h-[calc(100vh-76px)] w-72 shrink-0 border-r border-slate-200 bg-white xl:block'>
+        <aside className='hidden min-h-[calc(100vh-76px)] w-64 shrink-0 border-r border-slate-200 bg-white lg:block xl:w-72'>
             <div className='border-b border-slate-200 px-7 py-8'>
                 <div className='flex items-center gap-4 rounded-3xl bg-slate-50 p-4'>
                     <img src={user?.image || assets.user_profile} alt="Admin profile" className='h-14 w-14 rounded-2xl object-cover' />

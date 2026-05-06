@@ -3,12 +3,14 @@ import { assets } from '../../assets/assets'
 import Title from '../../components/Title'
 import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
+import CarDetailsModal from '../../components/CarDetailsModal'
 
 const ManageCars = () => {
 
     const { isAdmin, axios, currency } = useAppContext()
 
     const [cars, setCars] = useState([])
+    const [selectedCar, setSelectedCar] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
@@ -17,7 +19,6 @@ const ManageCars = () => {
             setLoading(true)
             setError('')
             const { data } = await axios.get('/api/admin/cars')
-            console.log('Admin cars response:', data)
             if (data.success) {
                 setCars(data.cars)
             } else {
@@ -25,7 +26,6 @@ const ManageCars = () => {
                 toast.error(data.message)
             }
         } catch (error) {
-            console.error('Error fetching cars:', error)
             setError(error.message || 'Error fetching cars')
             toast.error(error.message)
         } finally {
@@ -57,8 +57,16 @@ const ManageCars = () => {
         }
     }, [isAdmin])
 
+    const openCarDetails = (car) => {
+        setSelectedCar(car)
+    }
+
+    const closeCarDetails = () => {
+        setSelectedCar(null)
+    }
+
     return (
-        <div className='px-4 pt-10 md:px-10 w-full'>
+        <div className='w-full px-4 pt-8 sm:px-6 md:px-8 lg:px-10'>
 
             <Title title="Manage Cars" subTitle="View all cars on the platform" />
 
@@ -84,8 +92,8 @@ const ManageCars = () => {
             )}
 
             {!loading && cars.length > 0 && (
-                <div className='max-w-5xl w-full rounded-md mt-6 overflow-hidden border border-gray-300'>
-                    <table className='w-full border-collapse text-left text-gray-700 text-sm'>
+                <div className='mt-6 w-full max-w-6xl overflow-x-auto rounded-2xl border border-gray-300 bg-white shadow-sm'>
+                    <table className='min-w-[880px] w-full border-collapse text-left text-gray-700 text-sm'>
                         <thead className='text-gray-500'>
                             <tr>
                                 <th className='p-3 font-medium'>Car</th>
@@ -99,7 +107,8 @@ const ManageCars = () => {
                         <tbody>
                             {cars.map((car, index) => (
                                 <tr key={index} className='border-t border-gray-300 hover:bg-gray-50'>
-                                    <td className='p-3 flex items-center gap-3'>
+                                    <td className='cursor-pointer p-3' onClick={() => openCarDetails(car)}>
+                                        <div className='flex items-center gap-3'>
                                         <div className='w-12 h-12 aspect-square bg-gray-200 rounded-md flex items-center justify-center overflow-hidden'>
                                             {car.image ? (
                                                 <img
@@ -115,11 +124,12 @@ const ManageCars = () => {
                                             <p className='font-medium'>{car.brand} {car.model}</p>
                                             <p className='text-xs text-gray-500'>{car.seating_capacity} seats, {car.transmission}</p>
                                         </div>
+                                        </div>
                                     </td>
-                                    <td className='p-3'>{car.owner?.name || 'Unknown'}</td>
-                                    <td className='p-3 max-md:hidden'>{car.category}</td>
-                                    <td className='p-3'>{currency}{car.pricePerDay}/day</td>
-                                    <td className='p-3 max-md:hidden'>{car.location}</td>
+                                    <td className='cursor-pointer p-3' onClick={() => openCarDetails(car)}>{car.owner?.name || 'Unknown'}</td>
+                                    <td className='cursor-pointer p-3 max-md:hidden' onClick={() => openCarDetails(car)}>{car.category}</td>
+                                    <td className='cursor-pointer p-3' onClick={() => openCarDetails(car)}>{currency}{car.pricePerDay}/day</td>
+                                    <td className='cursor-pointer p-3 max-md:hidden' onClick={() => openCarDetails(car)}>{car.location}</td>
                                     <td className='p-3'>
                                         <img onClick={() => deleteCar(car._id)} src={assets.delete_icon} alt="" className='cursor-pointer' />
                                     </td>
@@ -128,6 +138,15 @@ const ManageCars = () => {
                         </tbody>
                     </table>
                 </div>
+            )}
+
+            {selectedCar && (
+                <CarDetailsModal
+                    car={selectedCar}
+                    onClose={closeCarDetails}
+                    currency={currency}
+                    showOwner
+                />
             )}
 
         </div>

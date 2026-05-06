@@ -90,9 +90,9 @@ const Dashboard = () => {
   }, [isOwner])
 
   return (
-    <div className='px-5 py-6 md:px-8 lg:px-10'>
-      <div className='mx-auto w-full max-w-[1480px] rounded-[30px] border border-slate-200 bg-white px-6 py-7 shadow-sm md:px-8'>
-        <div className='grid gap-6 2xl:grid-cols-[minmax(0,1fr)_340px] 2xl:items-start'>
+    <div className='px-4 py-5 sm:px-6 md:px-8 lg:px-8 xl:px-10'>
+      <div className='mx-auto w-full max-w-[1480px] rounded-[28px] border border-slate-200 bg-white px-5 py-6 shadow-sm sm:px-6 md:px-8 md:py-7'>
+        <div className='grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start 2xl:grid-cols-[minmax(0,1fr)_340px]'>
           <div>
             <p className='text-sm font-semibold uppercase tracking-[0.24em] text-emerald-500'>Owner Dashboard</p>
             <h1 className='mt-3 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl'>
@@ -103,7 +103,7 @@ const Dashboard = () => {
             </p>
           </div>
 
-          <div className='grid grid-cols-2 gap-4 self-start sm:grid-cols-3 2xl:grid-cols-1'>
+          <div className='grid grid-cols-2 gap-4 self-start sm:grid-cols-3 xl:grid-cols-1'>
             <div className='rounded-2xl bg-slate-50 p-4'>
               <p className='text-xs uppercase tracking-[0.22em] text-slate-400'>Pending</p>
               <p className='mt-2 text-2xl font-semibold text-slate-900'>{data.pendingBookings}</p>
@@ -119,7 +119,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className='mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3'>
+        <div className='mt-8 grid gap-5 sm:grid-cols-2 2xl:grid-cols-3'>
           {stats.map((stat) => (
             <div key={stat.title} className='rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm'>
               <div className='flex items-start justify-between gap-4'>
@@ -136,7 +136,7 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <div className='mt-8 grid items-start gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.9fr)]'>
+        <div className='mt-8 grid items-start gap-6 2xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.9fr)]'>
           <div className='rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
             <div className='flex items-center justify-between gap-4'>
               <div>

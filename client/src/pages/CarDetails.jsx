@@ -19,6 +19,7 @@ const CarDetails = () => {
   const [car, setCar] = useState(null);
   const [showBookingProfileModal, setShowBookingProfileModal] = useState(false);
   const [isSubmittingBooking, setIsSubmittingBooking] = useState(false);
+  const [activeImage, setActiveImage] = useState('');
   const [bookingProfile, setBookingProfile] = useState({
     renterName: '',
     renterEmail: '',
@@ -100,7 +101,15 @@ const CarDetails = () => {
     }
   }
 
-  useEffect(() => { setCar(cars.find(car => car._id === id)) }, [cars, id])
+  useEffect(() => {
+    const matchedCar = cars.find(car => car._id === id)
+    setCar(matchedCar)
+  }, [cars, id])
+
+  useEffect(() => {
+    const galleryImages = car?.images?.length ? car.images : car?.image ? [car.image] : []
+    setActiveImage(galleryImages[0] || '')
+  }, [car])
 
   useEffect(() => {
     if (pickupDate && returnDate && pickupDate > returnDate) {
@@ -140,6 +149,7 @@ const CarDetails = () => {
 
   const mapCoordinates = resolveCoordinates(car?.location, car?.pickupCoordinates);
   const mapLabel = car?.preciseLocation || car?.location || '';
+  const galleryImages = car?.images?.length ? car.images : car?.image ? [car.image] : []
 
   return car ? (
     <div className='px-6 md:px-16 lg:px-24 xl:px-32 mt-16 '>
@@ -162,7 +172,21 @@ const CarDetails = () => {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
 
-            src={car.image} alt={car.name} className='w-full h-auto md:max-h-100 object-cover rounded-xl mb-6 shadow-md' />
+            src={activeImage || car.image} alt={car.name} className='w-full h-auto md:max-h-100 object-cover rounded-xl mb-6 shadow-md' />
+          {galleryImages.length > 1 ? (
+            <div className='mb-6 grid grid-cols-4 gap-3 sm:grid-cols-5'>
+              {galleryImages.map((imageUrl, index) => (
+                <button
+                  key={`${imageUrl}-${index}`}
+                  type='button'
+                  onClick={() => setActiveImage(imageUrl)}
+                  className={`overflow-hidden rounded-xl border ${activeImage === imageUrl ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-200'}`}
+                >
+                  <img src={imageUrl} alt={`${car.brand} ${car.model} ${index + 1}`} className='h-18 w-full object-cover' />
+                </button>
+              ))}
+            </div>
+          ) : null}
           <motion.div className='space-y-6'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

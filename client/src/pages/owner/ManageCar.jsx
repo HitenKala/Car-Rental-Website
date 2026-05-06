@@ -5,6 +5,7 @@ import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
 import LocationMap from '../../components/LocationMap'
 import { buildGoogleMapsUrl, resolveCoordinates } from '../../utils/locationMap'
+import CarDetailsModal from '../../components/CarDetailsModal'
 
 const ManageCar = () => {
 
@@ -12,9 +13,12 @@ const ManageCar = () => {
 
   const [cars, setCars] = useState([])
   const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedCar, setSelectedCar] = useState(null)
   const [isUpdatingCar, setIsUpdatingCar] = useState(false)
   const [editingCarId, setEditingCarId] = useState('')
-  const [editImageFile, setEditImageFile] = useState(null)
+  const [existingImages, setExistingImages] = useState([])
+  const [primaryImage, setPrimaryImage] = useState('')
+  const [editImageFiles, setEditImageFiles] = useState([])
   const [editRcDocumentFile, setEditRcDocumentFile] = useState(null)
   const [editForm, setEditForm] = useState({
     brand: '',
@@ -78,7 +82,10 @@ const ManageCar = () => {
 
   const openEditModal = (car) => {
     setEditingCarId(car._id)
-    setEditImageFile(null)
+    const currentImages = Array.isArray(car.images) && car.images.length ? car.images : car.image ? [car.image] : []
+    setExistingImages(currentImages)
+    setPrimaryImage(car.image || currentImages[0] || '')
+    setEditImageFiles([])
     setEditRcDocumentFile(null)
     setEditForm({
       brand: car.brand || '',
@@ -103,12 +110,48 @@ const ManageCar = () => {
     if (isUpdatingCar) return
     setShowEditModal(false)
     setEditingCarId('')
-    setEditImageFile(null)
+    setExistingImages([])
+    setPrimaryImage('')
+    setEditImageFiles([])
     setEditRcDocumentFile(null)
+  }
+
+  const openCarDetails = (car) => {
+    setSelectedCar(car)
+  }
+
+  const closeCarDetails = () => {
+    setSelectedCar(null)
+  }
+
+  const openEditFromDetails = () => {
+    if (!selectedCar) return
+    const carToEdit = selectedCar
+    setSelectedCar(null)
+    openEditModal(carToEdit)
   }
 
   const handleEditChange = (field, value) => {
     setEditForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleEditImageSelection = (event) => {
+    const files = Array.from(event.target.files || [])
+    if (!files.length) return
+    setEditImageFiles((prev) => [...prev, ...files].slice(0, 8))
+    event.target.value = ''
+  }
+
+  const removeExistingImage = (imageUrl) => {
+    const nextImages = existingImages.filter((item) => item !== imageUrl)
+    setExistingImages(nextImages)
+    if (primaryImage === imageUrl) {
+      setPrimaryImage(nextImages[0] || '')
+    }
+  }
+
+  const removeNewImage = (indexToRemove) => {
+    setEditImageFiles((prev) => prev.filter((_, index) => index !== indexToRemove))
   }
 
   const updateCar = async (event) => {
@@ -139,12 +182,19 @@ const ManageCar = () => {
         year: numericYear,
         seating_capacity: numericSeats,
         pricePerDay: numericPrice,
+        existingImages,
+        primaryImage,
+      }
+
+      if (existingImages.length === 0 && editImageFiles.length === 0) {
+        toast.error('Please keep or upload at least one car image')
+        return
       }
 
       const formData = new FormData()
       formData.append('carId', editingCarId)
       formData.append('updateData', JSON.stringify(updateData))
-      if (editImageFile) formData.append('image', editImageFile)
+      editImageFiles.forEach((file) => formData.append('images', file))
       if (editRcDocumentFile) formData.append('rcDocument', editRcDocumentFile)
 
       const { data } = await axios.post('/api/owner/update-car', formData)
@@ -170,12 +220,12 @@ const ManageCar = () => {
   const mapLabel = editForm.preciseLocation || editForm.location
 
   return (
-    <div className='px-4 pt-10 md:px-10 w-full'>
+    <div className='w-full px-4 pt-8 sm:px-6 md:px-8 lg:px-10'>
 
       <Title title="Manage Cars" subTitle="View all listed cars" />
 
-      <div className='max-w-3xl w-full rounded-md mt-6 overflow-hidden border border-gray-300'>
-        <table className='w-full border-collapse text-left text-gray-700 text-sm'>
+      <div className='mt-6 w-full max-w-5xl overflow-x-auto rounded-2xl border border-gray-300 bg-white shadow-sm'>
+        <table className='min-w-[760px] w-full border-collapse text-left text-gray-700 text-sm'>
           <thead className='text-gray-500'>
             <tr>
               <th className='p-3 font-medium'>Car</th>
@@ -188,16 +238,18 @@ const ManageCar = () => {
           <tbody>
             {cars.map((car, index) => (
               <tr key={index} className='border-t border-gray-300 hover:bg-gray-50'>
-                <td className='p-3 flex items-center gap-3'>
+                <td className='cursor-pointer p-3' onClick={() => openCarDetails(car)}>
+                  <div className='flex items-center gap-3'>
                   <img src={car.image} alt="" className='w-12 h-12 aspect-square object-cover rounded-md' />
                   <div className='max-md:hidden'>
                     <p className='font-medium'>{car.brand} {car.model}</p>
                     <p className='text-xs text-gray-500'>{car.seating_capacity} {car.transmission}</p>
                   </div>
+                  </div>
                 </td>
-                <td className='p-3 max-md:hidden'>{car.category}</td>
-                <td className='p-3'>{currency}{car.pricePerDay}/day</td>
-                <td className='p-3 max-md:hidden'>
+                <td className='cursor-pointer p-3 max-md:hidden' onClick={() => openCarDetails(car)}>{car.category}</td>
+                <td className='cursor-pointer p-3' onClick={() => openCarDetails(car)}>{currency}{car.pricePerDay}/day</td>
+                <td className='cursor-pointer p-3 max-md:hidden' onClick={() => openCarDetails(car)}>
                   <span className={`px-3 py-1 rounded-full text-xs ${car.isAvailable ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500"}`}>
                     {car.isAvailable ? "Available" : "Unavailable"}
                   </span>
@@ -223,7 +275,7 @@ const ManageCar = () => {
           <form
             onSubmit={updateCar}
             onClick={(event) => event.stopPropagation()}
-            className='w-full max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl'
+            className='max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl'
           >
             <h3 className='text-xl font-semibold text-slate-900'>Edit Car Details</h3>
             <p className='mt-1 text-sm text-slate-600'>Update pricing, specs, and availability details.</p>
@@ -273,10 +325,12 @@ const ManageCar = () => {
                 RC Number
                 <input required value={editForm.rcNumber} onChange={(e) => handleEditChange('rcNumber', e.target.value)} className='mt-2 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none' />
               </label>
-              <label className='mt-7 inline-flex items-center gap-2 text-sm font-medium text-slate-700'>
-                <input type='checkbox' checked={editForm.isAvailable} onChange={(e) => handleEditChange('isAvailable', e.target.checked)} />
-                Available for booking
-              </label>
+              <div className='flex flex-col justify-end'>
+                <label className='inline-flex min-h-[46px] items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-700'>
+                  <input type='checkbox' checked={editForm.isAvailable} onChange={(e) => handleEditChange('isAvailable', e.target.checked)} />
+                  Available for booking
+                </label>
+              </div>
             </div>
 
             <label className='mt-4 block text-sm font-medium text-slate-700'>
@@ -320,16 +374,55 @@ const ManageCar = () => {
             </div>
 
             <div className='mt-4 grid grid-cols-1 gap-4 md:grid-cols-2'>
-              <label className='block text-sm font-medium text-slate-700'>
-                Replace Car Image (optional)
+              <div className='block text-sm font-medium text-slate-700 md:col-span-2'>
+                Car Photos
                 <input
                   type='file'
                   accept='image/*'
-                  onChange={(e) => setEditImageFile(e.target.files?.[0] || null)}
+                  multiple
+                  onChange={handleEditImageSelection}
                   className='mt-2 block w-full text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium'
                 />
-                <p className='mt-1 text-xs text-gray-500'>{editImageFile ? editImageFile.name : 'Keep current image if not changed'}</p>
-              </label>
+                <p className='mt-1 text-xs text-gray-500'>Keep, remove, or add more photos. Choose a current photo as the main image.</p>
+
+                {existingImages.length > 0 ? (
+                  <div className='mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3'>
+                    {existingImages.map((imageUrl, index) => (
+                      <div key={`${imageUrl}-${index}`} className='overflow-hidden rounded-2xl border border-slate-200 bg-white'>
+                        <img src={imageUrl} alt={`Car ${index + 1}`} className='h-24 w-full object-cover' />
+                        <div className='space-y-2 px-3 py-2'>
+                          <button
+                            type='button'
+                            onClick={() => setPrimaryImage(imageUrl)}
+                            className={`w-full rounded-lg px-2 py-1 text-[11px] font-medium ${primaryImage === imageUrl ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}
+                          >
+                            {primaryImage === imageUrl ? 'Main photo' : 'Set as main'}
+                          </button>
+                          <button type='button' onClick={() => removeExistingImage(imageUrl)} className='w-full text-[11px] font-medium text-rose-600'>
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+
+                {editImageFiles.length > 0 ? (
+                  <div className='mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3'>
+                    {editImageFiles.map((file, index) => (
+                      <div key={`${file.name}-${index}`} className='overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50'>
+                        <img src={URL.createObjectURL(file)} alt={file.name} className='h-24 w-full object-cover' />
+                        <div className='flex items-center justify-between px-3 py-2'>
+                          <p className='truncate text-[11px] text-slate-500'>New photo {index + 1}</p>
+                          <button type='button' onClick={() => removeNewImage(index)} className='text-[11px] font-medium text-rose-600'>
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
 
               <label className='block text-sm font-medium text-slate-700'>
                 Replace RC Document (optional)
@@ -353,9 +446,17 @@ const ManageCar = () => {
         </div>
       )}
 
+      {selectedCar && (
+        <CarDetailsModal
+          car={selectedCar}
+          onClose={closeCarDetails}
+          currency={currency}
+          onEdit={openEditFromDetails}
+        />
+      )}
+
     </div>
   )
 }
 
 export default ManageCar
-

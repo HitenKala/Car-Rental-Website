@@ -27,7 +27,7 @@ const Sidebar = () => {
     }
 
     return (
-        <aside className='hidden min-h-[calc(100vh-76px)] w-72 shrink-0 border-r border-slate-200 bg-white xl:block'>
+        <aside className='hidden min-h-[calc(100vh-76px)] w-64 shrink-0 border-r border-slate-200 bg-white lg:block xl:w-72'>
             <div className='border-b border-slate-200 px-7 py-8'>
                 <div className='rounded-3xl bg-slate-50 p-5'>
                     <div className='group relative mx-auto w-fit'>

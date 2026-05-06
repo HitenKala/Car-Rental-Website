@@ -19,7 +19,6 @@ const ManageUsers = () => {
             setLoading(true)
             setError('')
             const { data } = await axios.get('/api/admin/users')
-            console.log('Admin users response:', data)
             if (data.success) {
                 setUsers(data.users)
             } else {
@@ -27,7 +26,6 @@ const ManageUsers = () => {
                 toast.error(data.message)
             }
         } catch (error) {
-            console.error('Error fetching users:', error)
             setError(error.message || 'Error fetching users')
             toast.error(error.message)
         } finally {
@@ -60,7 +58,7 @@ const ManageUsers = () => {
     }, [isAdmin])
 
     return (
-        <div className='px-4 pt-10 md:px-10 w-full'>
+        <div className='w-full px-4 pt-8 sm:px-6 md:px-8 lg:px-10'>
 
             <Title title="Manage Users" subTitle="View and manage all users" />
 
@@ -86,8 +84,8 @@ const ManageUsers = () => {
             )}
 
             {!loading && users.length > 0 && (
-                <div className='max-w-4xl w-full rounded-md mt-6 overflow-hidden border border-gray-300'>
-                    <table className='w-full border-collapse text-left text-gray-700 text-sm'>
+                <div className='mt-6 w-full max-w-5xl overflow-x-auto rounded-2xl border border-gray-300 bg-white shadow-sm'>
+                    <table className='min-w-[720px] w-full border-collapse text-left text-gray-700 text-sm'>
                         <thead className='text-gray-500'>
                             <tr>
                                 <th className='p-3 font-medium'>User</th>

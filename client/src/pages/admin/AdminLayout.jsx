@@ -8,9 +8,7 @@ const AdminLayout = () => {
     const { isAdmin, navigate, isCheckingAuth } = useAppContext()
 
     useEffect(() => {
-        console.log('AdminLayout - isCheckingAuth:', isCheckingAuth, 'isAdmin:', isAdmin)
         if (!isCheckingAuth && !isAdmin) {
-            console.warn('User is not admin, redirecting to home')
             navigate('/')
         }
     }, [isAdmin, isCheckingAuth, navigate])

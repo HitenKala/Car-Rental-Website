@@ -17,6 +17,7 @@ const Navbar = () => {
     const [registrationFile, setRegistrationFile] = useState(null);
     const [isSubmittingOwnerForm, setIsSubmittingOwnerForm] = useState(false);
     const [navbarSearch, setNavbarSearch] = useState('');
+    const [showMobileSearch, setShowMobileSearch] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,6 +27,10 @@ const Navbar = () => {
 
     useEffect(() => {
         setOpen(false);
+    }, [location.pathname]);
+
+    useEffect(() => {
+        setShowMobileSearch(false);
     }, [location.pathname]);
 
     const openOwnerRegistration = () => {
@@ -94,6 +99,15 @@ const Navbar = () => {
         const query = params.toString();
         navigate(`/cars${query ? `?${query}` : ''}`);
         setOpen(false);
+        setShowMobileSearch(false);
+    }
+
+    const handleMobileSearchBlur = () => {
+        window.setTimeout(() => {
+            if (!document.activeElement?.closest('[data-mobile-search]') && !navbarSearch.trim()) {
+                setShowMobileSearch(false);
+            }
+        }, 120);
     }
 
     return (
@@ -101,50 +115,77 @@ const Navbar = () => {
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className={`flex items-center justify-start gap-6 lg:gap-8 px-6 md:px-10 lg:px-14 xl:px-16 
+            className={`flex items-center justify-between gap-3 px-4 sm:gap-6 sm:px-6 md:flex-nowrap md:px-10 lg:gap-8 lg:px-14 xl:px-16 
     py-0 text-textDark border-b border-borderColor relative transition-all 
     ${location.pathname === "/" && "bg-[#cdc7cc] border-b-3 border-[#ff344c]"}`}>
 
             <Link to={"/"}>
                 <motion.img
                     whileHover={{ scale: 1.2 }}
-                    src={assets.turbo_rides2} type='png' alt="logo" className="h-22" />
+                    src={assets.turbo_rides2} type='png' alt="logo" className="h-12 shrink-0 sm:h-18 md:h-22" />
             </Link>
 
-            <div className={`max-sm:fixed max-sm:left-0 max-sm:h-screen max-sm:w-full max-sm:top-18 max-sm:overflow-y-auto   
-             max-sm:border-t border-borderColor right-0 flex flex-col sm:flex-row sm:flex-nowrap
-             items-start sm:items-center gap-4 sm:gap-10 max-sm:p-4 transition-all sm:w-full sm:ml-8 lg:ml-14
-            duration-300 z-50 ${location.pathname === "/" ? "bg-[#cdc7cc]" : "bg-white "} 
-            ${open ? "max-sm:translate-x-0" : "max-sm:-translate-x-full"}`}>
-                <div className='flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 lg:ml-auto'>
-                    {menuLinks.map((link, index) => (
-                        <Link key={index} to={link.path} className='whitespace-nowrap'>
-                            {link.name}
-                        </Link>
-                    ))}
-                </div>
-
-                <form
+            <div className='ml-auto flex items-center justify-end gap-2 sm:hidden'>
+            {showMobileSearch ? (
+                <motion.form
                     onSubmit={handleNavbarSearch}
-                    className='group relative flex w-full items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-[0_6px_20px_rgba(15,23,42,0.08)] transition-all duration-300 focus-within:border-blue-300 focus-within:shadow-[0_10px_28px_rgba(37,99,235,0.18)] lg:hidden'
+                    data-mobile-search
+                    initial={{ opacity: 0, x: 12, scaleX: 0.92 }}
+                    animate={{ opacity: 1, x: 0, scaleX: 1 }}
+                    exit={{ opacity: 0, x: 12, scaleX: 0.92 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className='flex w-[160px] origin-right items-center gap-1 rounded-full border border-slate-300/70 bg-white/80 px-2 py-1 shadow-[0_6px_20px_rgba(15,23,42,0.08)] transition-all duration-300 focus-within:border-blue-300 focus-within:shadow-[0_10px_28px_rgba(37,99,235,0.18)]'
                 >
-                    <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500'>
-                        <img src={assets.search_icon} alt='search' className='h-4 w-4 opacity-70' />
+                    <div className='flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500'>
+                        <img src={assets.search_icon} alt='search' className='h-3 w-3 opacity-70' />
                     </div>
                     <input
                         type='text'
                         value={navbarSearch}
                         onChange={(e) => setNavbarSearch(e.target.value)}
-                        className='w-full bg-transparent text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400'
-                        placeholder='Search cars, brands, models'
+                        onBlur={handleMobileSearchBlur}
+                        className='w-full min-w-0 bg-transparent text-xs font-medium text-slate-700 outline-none placeholder:text-slate-400'
+                        placeholder='Search'
+                        autoFocus
                     />
                     <button
                         type='submit'
-                        className='rounded-full bg-[#1d4ed8] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-[#1e40af]'
+                        className='shrink-0 rounded-full bg-[#1d4ed8] p-1.5 text-white transition hover:bg-[#1e40af]'
+                        aria-label='Search'
                     >
-                        Search
+                        <img src={assets.search_icon} alt='' className='h-3 w-3 brightness-0 invert' />
                     </button>
-                </form>
+                </motion.form>
+            ) : (
+                <motion.button
+                    type='button'
+                    onClick={() => setShowMobileSearch(true)}
+                    initial={{ opacity: 0.85, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-transparent bg-transparent text-slate-600 transition hover:bg-black/5'
+                    aria-label='Open search'
+                >
+                    <img src={assets.search_icon} alt='' className='h-4 w-4 opacity-75' />
+                </motion.button>
+            )}
+            <button className='shrink-0 cursor-pointer' aria-label='Menu' onClick={() => setOpen(!open)}>
+                <img src={open ? assets.close_icon : assets.menu_icon} alt="menu" />
+            </button>
+            </div>
+
+            <div className={`max-sm:fixed max-sm:left-0 max-sm:h-[calc(100vh-72px)] max-sm:w-full max-sm:top-[72px] max-sm:overflow-y-auto   
+             max-sm:border-t border-borderColor right-0 flex flex-col sm:flex-row sm:flex-nowrap
+             items-start sm:items-center gap-4 sm:gap-6 lg:gap-10 max-sm:p-4 transition-all sm:w-full sm:ml-4 md:ml-8 lg:ml-14
+            duration-300 z-50 ${location.pathname === "/" ? "bg-[#cdc7cc]" : "bg-white "} 
+            ${open ? "max-sm:translate-x-0" : "max-sm:-translate-x-full"}`}>
+                <div className='flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 lg:ml-auto'>
+                    {menuLinks.map((link, index) => (
+                        <Link key={index} to={link.path} className='whitespace-nowrap text-sm font-medium sm:text-base'>
+                            {link.name}
+                        </Link>
+                    ))}
+                </div>
 
                 <form
                     onSubmit={handleNavbarSearch}
@@ -179,9 +220,9 @@ const Navbar = () => {
                 </form>
 
                 {isAdmin ? (
-                    <button onClick={() => navigate('/admin')} className='cursor-pointer whitespace-nowrap'>Admin Dashboard</button>
+                    <button onClick={() => navigate('/admin')} className='cursor-pointer whitespace-nowrap max-sm:w-full max-sm:text-left'>Admin Dashboard</button>
                 ) : (
-                    <button onClick={() => isOwner ? navigate('/owner') : openOwnerRegistration()} className='cursor-pointer whitespace-nowrap'>
+                    <button onClick={() => isOwner ? navigate('/owner') : openOwnerRegistration()} className='cursor-pointer whitespace-nowrap max-sm:w-full max-sm:text-left'>
                         {isOwner
                             ? "Dashboard"
                             : user?.ownerVerificationStatus === 'pending'
@@ -192,14 +233,10 @@ const Navbar = () => {
                     </button>
                 )}
 
-                <button onClick={() => { user ? logout() : setShowLogin(true) }} className='cursor-pointer whitespace-nowrap px-6 py-2 bg-gray-100 hover:bg-[#232323] transition-all
-                     text-[#DA2917] hover:text-[#fff] rounded-lg font-bold '>{user ? "Logout" : "Login"}</button>
+                <button onClick={() => { user ? logout() : setShowLogin(true) }} className='cursor-pointer whitespace-nowrap rounded-lg bg-gray-100 px-6 py-2 font-bold text-[#DA2917] transition-all hover:bg-[#232323]
+                     hover:text-[#fff] max-sm:w-full max-sm:text-center'>{user ? "Logout" : "Login"}</button>
 
             </div>
-            <button className='sm:hidden cursor-pointer' aria-label='Menu' onClick={() => setOpen(!open)}>
-                <img src={open ? assets.close_icon : assets.menu_icon} alt="menu" />
-            </button>
-
             {showOwnerForm && (
                 <div
                     onClick={closeOwnerRegistration}

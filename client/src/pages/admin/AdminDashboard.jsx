@@ -55,7 +55,7 @@ const Chart = ({ data }) => {
     const areaPath = `${linePath} L ${points[points.length - 1].x} ${height - paddingBottom} L ${points[0].x} ${height - paddingBottom} Z`
 
     return (
-        <div className='rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
+        <div className='min-w-0 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
             <div className='mb-5 flex items-center justify-between gap-4'>
                 <div>
                     <p className='text-sm font-semibold text-slate-900'>Bookings / Month</p>
@@ -66,7 +66,7 @@ const Chart = ({ data }) => {
                 </div>
             </div>
 
-            <div className='overflow-x-auto'>
+            <div className='min-w-0 overflow-x-auto'>
                 <svg viewBox={`0 0 ${width} ${height}`} className='min-w-[620px]'>
                     {[0, 1, 2, 3, 4].map((step) => {
                         const y = paddingTop + (graphHeight / 4) * step
@@ -159,9 +159,9 @@ const AdminDashboard = () => {
     }, [isAdmin])
 
     return (
-        <div className='px-5 py-6 md:px-8 lg:px-10'>
-            <div className='mx-auto w-full max-w-[1480px] rounded-[30px] border border-slate-200 bg-white px-6 py-7 shadow-sm md:px-8'>
-                <div className='grid gap-6 2xl:grid-cols-[minmax(0,1fr)_360px] 2xl:items-start'>
+        <div className='overflow-x-hidden px-4 py-5 sm:px-6 md:px-8 lg:px-8 xl:px-10'>
+            <div className='mx-auto w-full max-w-[1480px] overflow-hidden rounded-[28px] border border-slate-200 bg-white px-5 py-6 shadow-sm sm:px-6 md:px-8 md:py-7'>
+                <div className='grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start 2xl:grid-cols-[minmax(0,1fr)_360px]'>
                     <div>
                         <p className='text-sm font-semibold uppercase tracking-[0.24em] text-emerald-500'>Admin Dashboard</p>
                         <h1 className='mt-3 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl'>
@@ -172,7 +172,7 @@ const AdminDashboard = () => {
                         </p>
                     </div>
 
-                    <div className='grid grid-cols-2 gap-4 self-start sm:grid-cols-3 2xl:grid-cols-1'>
+                    <div className='grid grid-cols-2 gap-4 self-start sm:grid-cols-3 xl:grid-cols-1'>
                         <div className='rounded-2xl bg-slate-50 p-4'>
                             <p className='text-xs uppercase tracking-[0.22em] text-slate-400'>Occupancy</p>
                             <p className='mt-2 text-2xl font-semibold text-slate-900'>{data.occupancyRate}%</p>
@@ -188,7 +188,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                <div className='mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4'>
+                <div className='mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4'>
                     {metrics.map((metric) => (
                         <div key={metric.title} className='rounded-[26px] border border-slate-200 bg-white p-5 shadow-sm'>
                             <div className='flex items-start justify-between gap-4'>
@@ -205,7 +205,7 @@ const AdminDashboard = () => {
                     ))}
                 </div>
 
-                <div className='mt-6 grid gap-4 md:grid-cols-3'>
+                <div className='mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
                     <div className='rounded-2xl bg-slate-50 p-4'>
                         <p className='text-xs uppercase tracking-[0.22em] text-slate-400'>Feedback Entries</p>
                         <p className='mt-2 text-2xl font-semibold text-slate-900'>{data.totalFeedbacks}</p>
@@ -220,11 +220,11 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                <div className='mt-8 grid items-start gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.9fr)]'>
+                <div className='mt-8 grid min-w-0 items-start gap-6 2xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.9fr)]'>
                     <Chart data={data.monthlyPerformance} />
 
-                    <div className='space-y-6'>
-                        <div className='rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
+                    <div className='min-w-0 space-y-6'>
+                        <div className='min-w-0 overflow-hidden rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
                             <div className='flex items-center justify-between'>
                                 <div>
                                     <p className='text-sm font-semibold text-slate-900'>Market Snapshot</p>
@@ -258,9 +258,9 @@ const AdminDashboard = () => {
                             </div>
                         </div>
 
-                        <div className='rounded-[28px] border border-slate-200 bg-[linear-gradient(145deg,#0f172a_0%,#172554_100%)] p-6 text-white shadow-sm'>
+                        <div className='min-w-0 overflow-hidden rounded-[28px] border border-slate-200 bg-[linear-gradient(145deg,#0f172a_0%,#172554_100%)] p-6 text-white shadow-sm'>
                             <p className='text-sm font-semibold uppercase tracking-[0.22em] text-blue-200'>Operations Note</p>
-                            <p className='mt-3 text-xl font-semibold'>Availability and bookings should stay balanced.</p>
+                            <p className='mt-3 break-words text-xl font-semibold'>Availability and bookings should stay balanced.</p>
                             <p className='mt-3 text-sm leading-6 text-slate-300'>
                                 Use the cars and bookings sections to catch bottlenecks quickly when pending requests rise or inventory gets concentrated in one city.
                             </p>
@@ -268,8 +268,8 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                <div className='mt-8 grid items-start gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.9fr)]'>
-                    <div className='rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
+                <div className='mt-8 grid min-w-0 items-start gap-6 2xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.9fr)]'>
+                    <div className='min-w-0 overflow-hidden rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
                         <div className='flex items-center justify-between gap-4'>
                             <div>
                                 <p className='text-sm font-semibold text-slate-900'>Recent Bookings</p>
@@ -321,7 +321,7 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className='rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
+                    <div className='min-w-0 overflow-hidden rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm'>
                         <p className='text-sm font-semibold text-slate-900'>Platform Health</p>
                         <p className='mt-1 text-sm text-slate-500'>Quick checks across supply and reservations</p>
 
