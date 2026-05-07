@@ -132,14 +132,19 @@ export const forgotPassword = async (req, res) => {
         await user.save()
 
         const emailDelivered = await sendResetCodeEmail(email, resetCode)
+        const isProduction = process.env.NODE_ENV === "production"
+
         const response = {
-            success: emailDelivered || process.env.NODE_ENV !== "production",
+            success: emailDelivered || !isProduction,
             message: emailDelivered
                 ? "Password reset code sent to your email. It expires in 15 minutes."
-                : "Password reset request created, but email delivery is not configured. Check server logs or configure SMTP settings.",
+                : !isProduction
+                    ? "Reset code generated (development mode). Use it to reset your password."
+                    : "Password reset request created, but email delivery is not configured. Check server logs or configure SMTP settings.",
         }
 
-        if (!emailDelivered && process.env.NODE_ENV !== "production") {
+        // Always include reset code in non-production for testing
+        if (!emailDelivered && !isProduction) {
             response.resetCode = resetCode
         }
 
