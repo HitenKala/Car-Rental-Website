@@ -131,24 +131,21 @@ export const forgotPassword = async (req, res) => {
         user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000)
         await user.save()
 
-        const emailDelivered = await sendResetCodeEmail(email, resetCode)
-        const isProduction = process.env.NODE_ENV === "production"
+        const smtpConfigured = Boolean(process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS)
+        const emailDelivered = smtpConfigured ? await sendResetCodeEmail(email, resetCode) : false
 
         const response = {
-            success: emailDelivered || !isProduction,
+            success: true,
             message: emailDelivered
                 ? "Password reset code sent to your email. It expires in 15 minutes."
-                : !isProduction
-                    ? "Reset code generated (development mode). Use it to reset your password."
-                    : "Password reset request created, but email delivery is not configured. Check server logs or configure SMTP settings.",
-        }
-
-        // Always include reset code in non-production for testing
-        if (!emailDelivered && !isProduction) {
-            response.resetCode = resetCode
+                : "Password reset request created. Email delivery is not configured, so the reset code is returned in the response for testing.",
+            resetCode: emailDelivered ? undefined : resetCode,
         }
 
         console.log(`Password reset code for ${email}: ${resetCode}`)
+        if (!emailDelivered && !smtpConfigured) {
+            console.warn('SMTP is not configured. Returning reset code in response for local testing.')
+        }
 
         res.json(response)
     } catch (error) {
