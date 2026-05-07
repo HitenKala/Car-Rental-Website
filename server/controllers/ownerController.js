@@ -24,6 +24,45 @@ const normalizePickupCoordinates = (coordinates) => {
     return { lat, lng };
 };
 
+const createImageKitClient = () => new ImageKit({
+    publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+    privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
+});
+
+const removeTempFile = (filePath, label = 'temp file') => {
+    if (!filePath) return;
+    fs.unlink(filePath, (err) => {
+        if (err) console.error(`Failed to remove ${label}:`, err);
+    });
+};
+
+const uploadCarGalleryImages = async (client, imageFiles = []) => {
+    const uploadedImages = await Promise.all(
+        imageFiles.map(async (imageFile) => {
+            const uploadRes = await client.files.upload({
+                file: fs.createReadStream(imageFile.path),
+                fileName: imageFile.originalname,
+                folder: '/cars'
+            });
+
+            const uploadedPath = uploadRes.filePath || uploadRes.name || uploadRes.url;
+            const optimizedImageUrl = client.helper.buildSrc({
+                src: uploadedPath,
+                urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+                transformation: [
+                    { width: 1280, quality: 'auto', format: 'webp' }
+                ]
+            });
+
+            removeTempFile(imageFile.path, 'car image temp file');
+            return optimizedImageUrl || uploadRes.url || uploadedPath;
+        })
+    );
+
+    return uploadedImages;
+};
+
 //API to change role of user
 export const changeRoleToOwner = async (req, res) => {
     try {
@@ -98,11 +137,6 @@ export const addCar = async (req, res) => {
         if (!req.body || !req.body.carData) {
             return res.status(400).json({ success: false, message: 'Missing carData in form body' });
         }
-        // Accept files from req.file (single) or req.files (upload.any())
-        if (!req.file && !(req.files && req.files.length)) {
-            return res.status(400).json({ success: false, message: 'Missing image file' });
-        }
-
         let car;
         try {
             car = JSON.parse(req.body.carData);
@@ -116,8 +150,12 @@ export const addCar = async (req, res) => {
         }
 
         const allFiles = req.file ? [req.file] : (req.files || []);
-        const imageFile = allFiles.find((file) => file.fieldname === 'image') || allFiles[0];
+        const imageFiles = allFiles.filter((file) => file.fieldname === 'images' || file.fieldname === 'image');
         const rcDocumentFile = allFiles.find((file) => file.fieldname === 'rcDocument');
+
+        if (imageFiles.length === 0) {
+            return res.status(400).json({ success: false, message: 'At least one car image is required' });
+        }
 
         if (!car.rcNumber || !String(car.rcNumber).trim()) {
             return res.status(400).json({ success: false, message: 'RC number is required' });
@@ -127,18 +165,8 @@ export const addCar = async (req, res) => {
             return res.status(400).json({ success: false, message: 'RC document is required' });
         }
 
-        //Upload Image to Imagekit
-        const client = new ImageKit({
-            publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-            privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-            urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
-        });
-
-        const uploadRes = await client.files.upload({
-            file: fs.createReadStream(imageFile.path),
-            fileName: imageFile.originalname,
-            folder: '/cars'
-        });
+        const client = createImageKitClient();
+        const uploadedImages = await uploadCarGalleryImages(client, imageFiles);
 
         const rcUploadRes = await client.files.upload({
             file: fs.createReadStream(rcDocumentFile.path),
@@ -146,37 +174,14 @@ export const addCar = async (req, res) => {
             folder: '/car-rc'
         });
 
-        // Remove temporary file written by multer to free disk space
-        fs.unlink(imageFile.path, (err) => {
-            if (err) console.error('Failed to remove temp file:', err);
-        });
-        fs.unlink(rcDocumentFile.path, (err) => {
-            if (err) console.error('Failed to remove temp RC file:', err);
-        });
-
-        const uploadedPath = uploadRes.filePath || uploadRes.name || uploadRes.url;
-
-        // Generate optimized image URL with transformations
-        const optimizedImageUrl = client.helper.buildSrc({
-            src: uploadedPath,
-            urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
-            transformation: [
-                { width: 1280, quality: 'auto', format: 'webp' }
-            ]
-        });
-
-        const image = optimizedImageUrl || uploadRes.url || uploadedPath;
-        console.log('Saving car with image:', {
-            uploadedPath,
-            optimizedImageUrl,
-            uploadRes_url: uploadRes.url,
-            finalImage: image
-        });
+        removeTempFile(rcDocumentFile.path, 'temp RC file');
+        const image = uploadedImages[0];
         const rcDocument = rcUploadRes.url || rcUploadRes.filePath || rcUploadRes.name;
         await Car.create({
             ...car,
             owner: _id,
             image,
+            images: uploadedImages,
             rcDocument,
             rcNumber: String(car.rcNumber).trim(),
             pickupCoordinates: pickupCoordinates || undefined,
@@ -363,6 +368,10 @@ export const updateCarDetails = async (req, res) => {
             }
         }
 
+        const allFiles = req.file ? [req.file] : (req.files || []);
+        const imageFiles = allFiles.filter((file) => file.fieldname === 'images' || file.fieldname === 'image');
+        const rcDocumentFile = allFiles.find((file) => file.fieldname === 'rcDocument');
+
         const car = await Car.findById(carId);
         if (!car) {
             return res.status(404).json({ success: false, message: "Car not found" });
@@ -389,7 +398,7 @@ export const updateCarDetails = async (req, res) => {
             'isAvailable',
         ];
         const providedFields = Object.keys(updateData).filter((key) => allowedFields.includes(key));
-        if (providedFields.length === 0) {
+        if (providedFields.length === 0 && imageFiles.length === 0 && !rcDocumentFile && !Array.isArray(updateData.existingImages)) {
             return res.status(400).json({ success: false, message: "No valid fields provided for update" });
         }
 
@@ -439,37 +448,19 @@ export const updateCarDetails = async (req, res) => {
             car[field] = value;
         }
 
-        const allFiles = req.file ? [req.file] : (req.files || []);
-        const imageFile = allFiles.find((file) => file.fieldname === 'image');
-        const rcDocumentFile = allFiles.find((file) => file.fieldname === 'rcDocument');
+        const existingImages = Array.isArray(updateData.existingImages)
+            ? updateData.existingImages.filter((item) => typeof item === 'string' && item.trim())
+            : (Array.isArray(car.images) && car.images.length ? [...car.images] : car.image ? [car.image] : []);
+        const requestedPrimaryImage = typeof updateData.primaryImage === 'string' ? updateData.primaryImage : '';
 
-        if (imageFile || rcDocumentFile) {
-            const client = new ImageKit({
-                publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-                privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-                urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
-            });
+        if (imageFiles.length || rcDocumentFile) {
+            const client = createImageKitClient();
 
-            if (imageFile) {
-                const uploadRes = await client.files.upload({
-                    file: fs.createReadStream(imageFile.path),
-                    fileName: imageFile.originalname,
-                    folder: '/cars'
-                });
-
-                const uploadedPath = uploadRes.filePath || uploadRes.name || uploadRes.url;
-                const optimizedImageUrl = client.helper.buildSrc({
-                    src: uploadedPath,
-                    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
-                    transformation: [
-                        { width: 1280, quality: 'auto', format: 'webp' }
-                    ]
-                });
-                car.image = optimizedImageUrl || uploadRes.url || uploadedPath;
-
-                fs.unlink(imageFile.path, (err) => {
-                    if (err) console.error('Failed to remove updated car image temp file:', err);
-                });
+            if (imageFiles.length) {
+                const uploadedImages = await uploadCarGalleryImages(client, imageFiles);
+                car.images = [...existingImages, ...uploadedImages];
+            } else {
+                car.images = existingImages;
             }
 
             if (rcDocumentFile) {
@@ -479,12 +470,19 @@ export const updateCarDetails = async (req, res) => {
                     folder: '/car-rc'
                 });
                 car.rcDocument = rcUploadRes.url || rcUploadRes.filePath || rcUploadRes.name;
-
-                fs.unlink(rcDocumentFile.path, (err) => {
-                    if (err) console.error('Failed to remove updated RC temp file:', err);
-                });
+                removeTempFile(rcDocumentFile.path, 'updated RC temp file');
             }
+        } else {
+            car.images = existingImages;
         }
+
+        if (!Array.isArray(car.images) || car.images.length === 0) {
+            return res.status(400).json({ success: false, message: 'At least one car image is required' });
+        }
+
+        car.image = requestedPrimaryImage && car.images.includes(requestedPrimaryImage)
+            ? requestedPrimaryImage
+            : car.images[0];
 
         await car.save();
         res.json({ success: true, message: "Car updated successfully", car });

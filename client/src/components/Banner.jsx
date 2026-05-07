@@ -67,40 +67,43 @@ const Banner = () => {
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className='flex flex-col items-center justify-center gap-6 rounded-2xl bg-gradient-to-r from-[#0558FE] to-[#A9CFFF] px-5 pt-10 text-center sm:px-8 md:mx-auto md:flex-row md:items-start md:justify-between md:pl-14 md:text-left max-w-6xl overflow-hidden'
-      >
-        <div>
-          <h2 className='text-2xl md:text-3xl font-semibold text-white max-w-lg'>Do You Own a Sports Car?</h2>
-          <p className='mt-2 text-white/90'>Monetize your Vehicle effortlessly by listing it on TurboRides</p>
+      <section className='px-4 py-4 sm:px-6 md:px-10 lg:px-16 xl:px-24'>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className='mx-auto flex max-w-6xl flex-col items-center justify-between gap-8 overflow-hidden rounded-[28px] bg-gradient-to-r from-[#0558FE] to-[#A9CFFF] px-5 py-8 text-center sm:px-8 sm:py-10 md:flex-row md:items-center md:px-12 md:text-left'
+        >
+          <div className='max-w-2xl'>
+            <p className='text-xs font-semibold uppercase tracking-[0.28em] text-white/80'>For car owners</p>
+            <h2 className='mt-3 text-2xl font-semibold text-white sm:text-3xl md:text-4xl'>Turn your premium car into a reliable earning asset</h2>
+            <p className='mt-3 text-sm leading-6 text-white/90 sm:text-base'>List your vehicle on TurboRides, reach verified renters, and manage bookings from a simple owner dashboard.</p>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => (isOwner ? navigate('/owner') : openOwnerRegistration())}
-            className='px-6 py-2 bg-white hover:bg-slate-100 transition-all text-primary rounded-lg text-sm mt-4 cursor-pointer'
-          >
-            {isOwner
-              ? 'Go to Dashboard'
-              : user?.ownerVerificationStatus === 'pending'
-                ? 'Owner Review Pending'
-                : user?.ownerVerificationStatus === 'rejected'
-                  ? 'Reapply as Owner'
-                  : 'List your Car'}
-          </motion.button>
-        </div>
-        <motion.img
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6, duration: 0.4 }}
-          src={assets.banner_car_image}
-          alt='car'
-          className='mt-4 max-h-45 w-full max-w-[420px] md:mt-10 md:w-auto'
-        />
-      </motion.div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => (isOwner ? navigate('/owner') : openOwnerRegistration())}
+              className='mt-5 inline-flex min-h-11 items-center justify-center rounded-lg bg-white px-6 py-2 text-sm font-medium text-primary transition-all hover:bg-slate-100 cursor-pointer'
+            >
+              {isOwner
+                ? 'Go to Dashboard'
+                : user?.ownerVerificationStatus === 'pending'
+                  ? 'Owner Review Pending'
+                  : user?.ownerVerificationStatus === 'rejected'
+                    ? 'Reapply as Owner'
+                    : 'List your Car'}
+            </motion.button>
+          </div>
+          <motion.img
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6, duration: 0.4 }}
+            src={assets.banner_car_image}
+            alt='car'
+            className='w-full max-w-[420px] sm:max-w-[460px] md:mt-6 md:w-[46%]'
+          />
+        </motion.div>
+      </section>
 
       {showOwnerForm && (
         <div

@@ -218,7 +218,7 @@ const OwnerDetails = () => {
 
     if (loading) {
         return (
-            <div className='px-4 pt-10 md:px-10 w-full'>
+            <div className='w-full px-4 pt-8 sm:px-6 md:px-8 lg:px-10'>
                 <p className='text-slate-500'>Loading owner details...</p>
             </div>
         )
@@ -226,7 +226,7 @@ const OwnerDetails = () => {
 
     if (error || !owner || !stats) {
         return (
-            <div className='px-4 pt-10 md:px-10 w-full'>
+            <div className='w-full px-4 pt-8 sm:px-6 md:px-8 lg:px-10'>
                 <p className='text-rose-600'>{error || 'Owner details unavailable'}</p>
                 <Link to='/admin/owners' className='mt-4 inline-block text-blue-600 underline'>Back to owners</Link>
             </div>
@@ -256,13 +256,13 @@ const OwnerDetails = () => {
     ]
 
     return (
-        <div className='px-4 pt-10 md:px-10 w-full pb-10'>
+        <div className='w-full px-4 pt-8 pb-10 sm:px-6 md:px-8 lg:px-10'>
             <Title title='Owner Details' subTitle='Performance, bookings, and compliance profile' />
             <Link to='/admin/owners' className='mt-3 inline-block text-sm font-medium text-blue-600 underline'>
                 Back to Manage Owners
             </Link>
 
-            <div className='mt-6 rounded-2xl border border-slate-200 bg-white p-5'>
+            <div className='mt-6 rounded-2xl border border-slate-200 bg-white p-5 md:p-6'>
                 <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
                     <div className='flex items-center gap-4'>
                         <img src={owner.image || assets.user_profile} alt='Owner profile' className='h-16 w-16 rounded-2xl object-cover' />
@@ -291,7 +291,7 @@ const OwnerDetails = () => {
                 </div>
             </div>
 
-            <div className='mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4'>
+            <div className='mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4'>
                 {statCards.map((card) => (
                     <div key={card.label} className='rounded-2xl border border-slate-200 bg-white px-4 py-4'>
                         <p className='text-xs uppercase tracking-[0.18em] text-slate-400'>{card.label}</p>
@@ -300,7 +300,7 @@ const OwnerDetails = () => {
                 ))}
             </div>
 
-            <div className='mt-8 rounded-2xl border border-slate-200 bg-white p-4'>
+            <div className='mt-8 rounded-2xl border border-slate-200 bg-white p-4 md:p-5'>
                 <div className='flex flex-wrap items-center justify-between gap-3'>
                     <div className='flex items-center gap-2'>
                         {[3, 6, 12].map((range) => (

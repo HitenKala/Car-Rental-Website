@@ -17,11 +17,11 @@ const Testimonial = () => {
     );
 
     return (
-        <div className="py-28 px-6 md:px-16 lg:px-24 xl:px-44">
+        <div className="px-4 py-18 sm:px-6 md:px-10 md:py-24 lg:px-16 xl:px-24">
 
-            <Title title="What Our Customers Say" subTitle="Discover why discerning travelers choose Turbo Rides for comfortable car rentals across Uttarakhand." />
+            <Title title="What Our Customers Say" subTitle="Discover why travelers choose TurboRides for dependable service, well-maintained cars, and a booking experience that feels smooth from start to finish." />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-18">
+            <div className="mt-12 grid grid-cols-1 gap-6 sm:mt-14 sm:grid-cols-2 lg:grid-cols-3">
                 {testimonials.map((testimonial) => (
                     <motion.div
                         initial={{ opacity: 0, y: 40 }}
@@ -29,13 +29,13 @@ const Testimonial = () => {
                         transition={{ duration: 0.6, delay: testimonial.id * 0.2, ease: 'easeInOut' }}
                         viewport={{ once: true, amount: 0.3 }}
                         key={testimonial.id}
-                        className="bg-white p-6 rounded-xl shadow-lg hover:-translate-y-1 transition-all duration-500 max-w-xs"
+                        className="h-full rounded-2xl bg-white p-6 shadow-lg transition-all duration-500 hover:-translate-y-1"
                     >
                         <div className="flex items-center gap-3">
                             <img className="w-12 h-12 rounded-full" src={testimonial.image} alt={testimonial.name} />
                             <div>
-                                <p className="text-xl font-medium">{testimonial.name}</p>
-                                <p className="text-gray-500">{testimonial.address}</p>
+                                <p className="text-lg font-medium text-slate-900 sm:text-xl">{testimonial.name}</p>
+                                <p className="text-sm text-gray-500">{testimonial.address}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-1 mt-4">
@@ -43,7 +43,7 @@ const Testimonial = () => {
                                 <Star key={index} filled={testimonial.rating > index} />
                             ))}
                         </div>
-                        <p className="text-gray-500 max-w-90 mt-4 font-light">"{testimonial.review}"</p>
+                        <p className="mt-4 text-sm leading-6 text-gray-500 sm:text-base">"{testimonial.review}"</p>
                     </motion.div>
                 ))}
             </div>

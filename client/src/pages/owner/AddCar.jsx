@@ -40,7 +40,7 @@ const AddCar = () => {
 
   const { axios, currency } = useAppContext()
 
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
   const [rcDocument, setRcDocument] = useState(null);
   const [car, setCar] = useState({
     brand: "",
@@ -61,6 +61,17 @@ const AddCar = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+
+  const handleImageSelection = (event) => {
+    const selectedFiles = Array.from(event.target.files || []);
+    if (!selectedFiles.length) return;
+    setImages((prev) => [...prev, ...selectedFiles].slice(0, 8));
+    event.target.value = '';
+  };
+
+  const removeImage = (indexToRemove) => {
+    setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
+  };
 
   const detectNearestPickupLocation = () => {
     if (!navigator.geolocation) {
@@ -148,8 +159,8 @@ const AddCar = () => {
 
     setIsLoading(true);
     try {
-      if (!image) {
-        toast.error('Please upload a car image');
+      if (images.length === 0) {
+        toast.error('Please upload at least one car image');
         return;
       }
       if (!rcDocument) {
@@ -157,14 +168,14 @@ const AddCar = () => {
         return;
       }
       const formData = new FormData();
-      formData.append('image', image);
+      images.forEach((file) => formData.append('images', file));
       formData.append('rcDocument', rcDocument);
       formData.append('carData', JSON.stringify(car));
 
       const { data } = await axios.post('/api/owner/add-car', formData)
       if (data.success) {
         toast.success(data.message);
-        setImage(null);
+        setImages([]);
         setRcDocument(null);
         setCar({
           brand: "",
@@ -196,22 +207,39 @@ const AddCar = () => {
   const mapLabel = car.preciseLocation || car.location;
 
   return (
-    <div className='px-4 pt-10 md:px-10 flex-1'>
+    <div className='flex-1 px-4 pt-8 sm:px-6 md:px-8 lg:px-10'>
       <Title title="Add New Car" subTitle="Fill in car details to add a new car to your fleet" />
 
-      <form onSubmit={onSubmitHandler} className='flex flex-col gap-5 text-gray-700 text-sm mt-6 max-w-xl'>
+      <form onSubmit={onSubmitHandler} className='mt-6 flex w-full max-w-4xl flex-col gap-5 rounded-[28px] border border-slate-200 bg-white p-5 text-sm text-gray-700 shadow-sm sm:p-6 md:p-7'>
 
         {/* Car Image Upload */}
-        <div className='flex items-center gap-2 w-full'>
+        <div className='flex w-full flex-col gap-3 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center'>
           <label htmlFor='car-image'>
-            <img src={image ? URL.createObjectURL(image) : assets.upload_icon} alt="" className='h-14 rounded cursor-pointer' />
-            <input type="file" id="car-image" accept="image/*" hidden onChange={(e) => setImage(e.target.files[0])} />
+            <img src={images[0] ? URL.createObjectURL(images[0]) : assets.upload_icon} alt="" className='h-16 w-16 rounded-xl cursor-pointer object-cover' />
+            <input type="file" id="car-image" accept="image/*" multiple hidden onChange={handleImageSelection} />
           </label>
-          <p className='text-sm text-gray-500'>Upload a picture of your car</p>
+          <div>
+            <p className='text-sm font-medium text-slate-800'>Upload car photos</p>
+            <p className='mt-1 text-xs text-gray-500'>Add up to 8 photos. The first photo becomes the main listing image.</p>
+          </div>
         </div>
 
+        {images.length > 0 ? (
+          <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4'>
+            {images.map((file, index) => (
+              <div key={`${file.name}-${index}`} className='overflow-hidden rounded-2xl border border-slate-200 bg-white'>
+                <img src={URL.createObjectURL(file)} alt={file.name} className='h-28 w-full object-cover' />
+                <div className='flex items-center justify-between px-3 py-2'>
+                  <p className='truncate text-[11px] text-slate-500'>{index === 0 ? 'Main photo' : `Photo ${index + 1}`}</p>
+                  <button type='button' onClick={() => removeImage(index)} className='text-xs font-medium text-rose-600'>Remove</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
         {/* RC Number & RC Document Upload */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
           <div className='flex flex-col w-full'>
             <label>RC Number</label>
             <input
@@ -237,7 +265,7 @@ const AddCar = () => {
         </div>
 
         {/* Car Brand & Model*/}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
           <div className='flex flex-col w-full'>
             <label>Brand</label>
             <input type="text" placeholder='e.g. BMW, Audi, Mercedes...' required value={car.brand} onChange={(e) => setCar({ ...car, brand: e.target.value })} className='border border-gray-300 rounded-md outline-none px-3 py-2 mt-1' />
@@ -249,7 +277,7 @@ const AddCar = () => {
         </div>
 
         {/* Car year, price, category */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
+        <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3'>
           <div className='flex flex-col w-full'>
             <label>Year</label>
             <input type="number" placeholder='e.g. 2020, 2021, 2022...' required value={car.year} onChange={(e) => setCar({ ...car, year: e.target.value })} className='border border-gray-300 rounded-md outline-none px-3 py-2 mt-1' />
@@ -271,7 +299,7 @@ const AddCar = () => {
         </div>
 
         {/* Transmission, fuel type, seating capacity */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
+        <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3'>
           <div className='flex flex-col w-full'>
             <label>Transmission</label>
             <select onChange={e => setCar({ ...car, transmission: e.target.value })} value={car.transmission} required className='border border-gray-300 rounded-md outline-none px-3 py-2 mt-1 text-[12px]'>
@@ -330,7 +358,7 @@ const AddCar = () => {
           <p className='mt-1 text-xs text-gray-500'>Add exact landmark/address visible to users after booking.</p>
 
         </div>
-        <div className='rounded-2xl border border-slate-200 bg-slate-50 p-4'>
+        <div className='rounded-2xl border border-slate-200 bg-slate-50 p-4 md:p-5'>
           <div className='flex flex-wrap items-start justify-between gap-3'>
             <div>
               <p className='text-sm font-semibold text-slate-900'>Pickup map preview</p>
@@ -369,7 +397,7 @@ const AddCar = () => {
           <label>Description</label>
           <textarea placeholder='Describe your car...' required value={car.description} onChange={(e) => setCar({ ...car, description: e.target.value })} className='border border-gray-300 rounded-md outline-none px-3 py-2 mt-1' rows="4" />
         </div>
-        <button className='flex items-center gap-2 px-4 py-2.5 mt-4 mb-4 bg-blue-600 text-white rounded-md w-max font-medium cursor-pointer hover:bg-blue-700 transition-all duration-300'>
+        <button className='mt-4 mb-2 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-white font-medium cursor-pointer transition-all duration-300 hover:bg-blue-700 sm:w-max'>
           <img src={assets.tick_icon} alt="" />{isLoading ? 'Listing...' : 'List Your Car'}
         </button>
       </form>

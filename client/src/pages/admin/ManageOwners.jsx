@@ -90,7 +90,7 @@ const ManageOwners = () => {
     }, [isAdmin])
 
     return (
-        <div className='px-4 pt-10 md:px-10 w-full'>
+        <div className='w-full px-4 pt-8 sm:px-6 md:px-8 lg:px-10'>
             <Title title="Manage Owners" subTitle="Review owner applications and manage approved owners" />
 
             {error && (
@@ -115,8 +115,8 @@ const ManageOwners = () => {
                         {requests.length === 0 ? (
                             <p className='text-sm text-slate-500 mt-2'>No pending owner requests.</p>
                         ) : (
-                            <div className='max-w-5xl w-full rounded-md mt-3 overflow-hidden border border-gray-300'>
-                                <table className='w-full border-collapse text-left text-gray-700 text-sm'>
+                            <div className='mt-3 w-full max-w-6xl overflow-x-auto rounded-2xl border border-gray-300 bg-white shadow-sm'>
+                                <table className='min-w-[880px] w-full border-collapse text-left text-gray-700 text-sm'>
                                     <thead className='text-gray-500'>
                                         <tr>
                                             <th className='p-3 font-medium'>Applicant</th>
@@ -185,8 +185,8 @@ const ManageOwners = () => {
                         {owners.length === 0 ? (
                             <p className='text-sm text-slate-500 mt-2'>No approved owners found.</p>
                         ) : (
-                            <div className='max-w-4xl w-full rounded-md mt-3 overflow-hidden border border-gray-300'>
-                                <table className='w-full border-collapse text-left text-gray-700 text-sm'>
+                            <div className='mt-3 w-full max-w-5xl overflow-x-auto rounded-2xl border border-gray-300 bg-white shadow-sm'>
+                                <table className='min-w-[720px] w-full border-collapse text-left text-gray-700 text-sm'>
                                     <thead className='text-gray-500'>
                                         <tr>
                                             <th className='p-3 font-medium'>Owner</th>

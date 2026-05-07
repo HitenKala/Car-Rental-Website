@@ -1,4 +1,4 @@
-import React, { use } from 'react'
+import React from 'react'
 import Title from './Title'
 import { assets } from '../assets/assets'
 import CarCard from './CarCard'
@@ -17,7 +17,7 @@ const FeaturedSection = () => {
       whileInView={{opacity: 1, y:0}}
       transition={{ duration: 1, ease: 'easeInOut' }}
 
-    className='flex flex-col items-center py-24  px-6 md:px-16 lg:px-24 xl:px-32'>
+    className='flex flex-col items-center px-4 py-18 sm:px-6 md:px-10 md:py-24 lg:px-16 xl:px-24'>
 
       <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -33,7 +33,7 @@ const FeaturedSection = () => {
       whileInView={{opacity: 1, y:0}}
       transition={{ delay: 0.5, duration: 1 }}
 
-       className='mt-18 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8'>
+       className='mt-12 grid w-full max-w-7xl grid-cols-1 gap-6 sm:mt-14 sm:grid-cols-2 lg:grid-cols-3'>
         {
           cars.slice(0, 6).map((car) => (
             <motion.div
@@ -41,7 +41,7 @@ const FeaturedSection = () => {
             whileInView={{opacity: 1, scale:1}}
             transition={{ duration: 0.4, ease: 'easeInOut' }}
             
-            key={car._id} className='group rounded-xl overflow-hidden shadow-lg hover:-translate-y-1 transition all duration-500 cursor-pointer'>
+            key={car._id} className='h-full'>
               <CarCard car={car} />
             </motion.div>
 
@@ -56,7 +56,7 @@ const FeaturedSection = () => {
       onClick={() => {
         navigate('/cars'); scrollTo(0, 0)
       }}
-        className='mt-18 flex items-center gap-2 px-6 py-2 bg-[#185a9d] hover:bg-neutral3 text-white rounded-md cursor-pointer'>
+        className='mt-10 flex items-center gap-2 rounded-md bg-[#185a9d] px-6 py-3 text-white cursor-pointer transition hover:bg-[#102f4e] sm:mt-12'>
         Explore all Cars <img src={assets.arrow_icon} alt="arrow" />
       </motion.button>
 

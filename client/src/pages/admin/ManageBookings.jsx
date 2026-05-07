@@ -16,25 +16,13 @@ const ManageBookings = () => {
             setLoading(true)
             setError('')
             const { data } = await axios.get('/api/admin/bookings')
-            console.log('Admin bookings response:', data)
             if (data.success) {
-                console.log('Full bookings data:', JSON.stringify(data.bookings.slice(0, 2), null, 2))
-                console.log('Bookings with car data:', data.bookings.map((b, idx) => ({
-                    bookingIdx: idx,
-                    carExists: !!b.car,
-                    carBrand: b.car?.brand,
-                    carModel: b.car?.model,
-                    carImage: b.car?.image,
-                    carImageLength: b.car?.image?.length || 0,
-                    carImagePreview: b.car?.image?.substring(0, 50)
-                })))
                 setBookings(data.bookings)
             } else {
                 setError(data.message || 'Failed to fetch bookings')
                 toast.error(data.message)
             }
         } catch (error) {
-            console.error('Error fetching bookings:', error)
             setError(error.message || 'Error fetching bookings')
             toast.error(error.message)
         } finally {
@@ -63,7 +51,7 @@ const ManageBookings = () => {
     }, [isAdmin])
 
     return (
-        <div className='px-4 pt-10 md:px-10 w-full'>
+        <div className='w-full px-4 pt-8 sm:px-6 md:px-8 lg:px-10'>
 
             <Title title="Manage Bookings" subTitle="Track all bookings on the platform" />
 
@@ -89,8 +77,8 @@ const ManageBookings = () => {
             )}
 
             {!loading && bookings.length > 0 && (
-                <div className='max-w-6xl w-full rounded-md mt-6 overflow-hidden border border-gray-300'>
-                    <table className='w-full border-collapse text-left text-gray-700 text-sm'>
+                <div className='mt-6 w-full overflow-x-auto rounded-2xl border border-gray-300 bg-white shadow-sm'>
+                    <table className='min-w-[1180px] w-full border-collapse text-left text-gray-700 text-sm'>
                         <thead className='text-gray-500'>
                             <tr>
                                 <th className='p-3 font-medium'>Car</th>
