@@ -70,20 +70,15 @@ const Hero = () => {
         transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
         className='space-y-4'
       >
-        <p className='text-xs font-semibold uppercase tracking-[0.32em] text-[#185a9d] sm:text-sm'>
-          Premium self-drive rentals
-        </p>
 
         <motion.h1 initial={{ y: 24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
           className='mx-auto max-w-[14ch] text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl'>
-          Rent the right car for every trip
+          Cars On Rent
         </motion.h1>
 
-        <p className='mx-auto max-w-2xl text-sm leading-6 text-slate-700 sm:text-base'>
-          Book premium vehicles with clear pricing, flexible pickup slots, and a smooth reservation experience designed for city drives and weekend escapes.
-        </p>
+
       </motion.div>
 
       <motion.form
